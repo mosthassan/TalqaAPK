@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   ArrowDown,
@@ -61,11 +62,13 @@ export function HomePage() {
 
       {/* Network Hero Banner */}
       <section className="network-hero">
-        <img
+        <Image
           src="/assets/network-hero.jpg"
           alt="صاعقة طلقة نت الزجاجية المضيئة"
           width={1536}
           height={864}
+          priority
+          referrerPolicy="no-referrer"
         />
         <div className="hero-content">
           <span className="hero-kicker">
@@ -227,12 +230,12 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
       </div>
 
       <div className="match-cover">
-        <img
+        <Image
           src="/assets/football.jpg"
           width={1536}
           height={864}
-          loading="lazy"
           alt="لاعبان يتنافسان في ملعب كرة قدم مضاء"
+          referrerPolicy="no-referrer"
         />
         <span className="cover-badge">
           <Radio size={13} /> عالم كرة القدم

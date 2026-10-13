@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useSyncExternalStore, useState, type ReactNode } from 'react';
+import React, { useEffect, useSyncExternalStore, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -20,6 +20,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
+import { useIsClient } from '@/src/hooks/useIsClient';
 
 interface NavItem {
   to: string;
@@ -85,6 +86,7 @@ const userStore = {
 
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isClient = useIsClient();
   const [auth, setAuth] = useState(false);
   const [notice, setNotice] = useState(false);
   const [install, setInstall] = useState(false);
@@ -94,11 +96,12 @@ export function Shell({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const user = useSyncExternalStore(
+  const rawUser = useSyncExternalStore(
     userStore.subscribe,
     userStore.getSnapshot,
     userStore.getServerSnapshot
   );
+  const user = isClient ? rawUser : null;
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();

@@ -109,8 +109,12 @@ export function SpeedTestView({ onComplete, compact = false }: SpeedTestViewProp
     providerName: 'جاهز لبدء الفحص',
   });
   const [lastResult, setLastResult] = useState<SpeedTestResult | null>(null);
-  const history = useSyncExternalStore(subscribeHistory, getHistorySnapshot, getServerHistorySnapshot);
-  const connectionInfo = useSyncExternalStore(subscribeConnection, getConnectionSnapshot, () => DEFAULT_CONN);
+  const isClient = useIsClient();
+
+  const rawHistory = useSyncExternalStore(subscribeHistory, getHistorySnapshot, getServerHistorySnapshot);
+  const rawConnectionInfo = useSyncExternalStore(subscribeConnection, getConnectionSnapshot, () => DEFAULT_CONN);
+  const history = isClient ? rawHistory : EMPTY_HISTORY;
+  const connectionInfo = isClient ? rawConnectionInfo : DEFAULT_CONN;
   const isCellular = connectionInfo.isCellular;
   const connectionTypeLabel = connectionInfo.label;
   const [copied, setCopied] = useState(false);

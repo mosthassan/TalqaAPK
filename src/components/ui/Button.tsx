@@ -77,13 +77,29 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onClick?.(e);
     };
 
-    const Comp = asChild ? Slot : 'button';
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref as unknown as React.Ref<HTMLElement>}
+          className={cn(
+            buttonVariants({ variant, size }),
+            fullWidth && 'w-full',
+            className
+          )}
+          onClick={onClick}
+          {...(disabled ? { 'aria-disabled': true } : {})}
+          {...props}
+        >
+          {children}
+        </Slot>
+      );
+    }
 
     return (
-      <Comp
+      <button
         ref={ref}
         disabled={disabled || isLoading}
-        onClick={asChild ? onClick : handleClick}
+        onClick={handleClick}
         className={cn(
           buttonVariants({ variant, size }),
           fullWidth && 'w-full',
@@ -103,7 +119,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {rightIcon}
           </>
         )}
-      </Comp>
+      </button>
     );
   }
 );
