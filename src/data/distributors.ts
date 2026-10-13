@@ -1,0 +1,92 @@
+import { DistributorPoint } from '../types';
+
+/**
+ * Provisional Distributor Points (نقاط التوزيع المؤقتة)
+ * 
+ * NOTE FOR PHASE 2 / NETWORK OWNER:
+ * These distributor records were extracted from the legacy dataset.
+ * They are explicitly marked with `isPlaceholder: true`.
+ * In Phase 2, these will be replaced with real GPS coordinates and verified distributor data.
+ */
+export const PROVISIONAL_DISTRIBUTORS: DistributorPoint[] = [
+  {
+    id: 'dist-1',
+    name: 'مركز النجم للاتصالات والخدمات',
+    ownerName: 'أبو أحمد النهاري',
+    neighborhood: 'شارع 26 سبتمبر - حي الروضة',
+    city: 'مأرب المدينة',
+    address: 'شارع 26 سبتمبر الرئيسي، بجوار مجمع النور، مأرب',
+    phone: '+967 718 097 168',
+    whatsapp: '967718097168',
+    openHours: '8:00 ص – 12:00 م',
+    lat: 15.4590,
+    lng: 45.3260,
+    isVerified: true,
+    isPlaceholder: true,
+    availableCards: ['كرت 200 ريال', 'كرت 500 ريال', 'كرت 1000 ريال', 'كرت 4000 ريال'],
+  },
+  {
+    id: 'dist-2',
+    name: 'سوبر ماركت البركة الحديث',
+    ownerName: 'محمد سعيد العولقي',
+    neighborhood: 'شارع الأربعين - حي المجمع',
+    city: 'مأرب المدينة',
+    address: 'شارع الأربعين، مقابل كلية التربية، مأرب',
+    phone: '+967 773 987 654',
+    whatsapp: '967773987654',
+    openHours: 'مفتوح 24 ساعة يومياً',
+    lat: 15.4640,
+    lng: 45.3200,
+    isVerified: true,
+    isPlaceholder: true,
+    availableCards: ['كرت 200 ريال', 'كرت 500 ريال', 'كرت 1000 ريال'],
+  },
+  {
+    id: 'dist-3',
+    name: 'كافيه ولاونج الأندلس',
+    ownerName: 'م. طارق العريقي',
+    neighborhood: 'حي السلام - شارع الجامعة',
+    city: 'مأرب المدينة',
+    address: 'شارع الجامعة الجديد، جوار مكتبة التوفير، مأرب',
+    phone: '+967 775 555 123',
+    whatsapp: '967775555123',
+    openHours: '7:00 ص – 1:00 فجراً',
+    lat: 15.4520,
+    lng: 45.3340,
+    isVerified: true,
+    isPlaceholder: true,
+    availableCards: ['جميع الكروت: 200، 500، 1000، 4000 ريال'],
+  },
+  {
+    id: 'dist-4',
+    name: 'محل الفخامة للإلكترونيات والألعاب',
+    ownerName: 'عبدالرحمن باحاج',
+    neighborhood: 'سوق مأرب العام',
+    city: 'وسط مأرب',
+    address: 'مدخل السوق العام، بجوار البريد، المحل رقم 14',
+    phone: '+967 770 112 233',
+    whatsapp: '967770112233',
+    openHours: '9:00 ص – 11:00 م',
+    lat: 15.4570,
+    lng: 45.3280,
+    isVerified: true,
+    isPlaceholder: true,
+    availableCards: ['كرت 1000 ريال', 'كرت 4000 ريال VIP'],
+  },
+  {
+    id: 'dist-5',
+    name: 'بقالة الوفاء السريعة',
+    ownerName: 'حسام العدني',
+    neighborhood: 'حي اليرموك - تقاطع النور',
+    city: 'مأرب',
+    address: 'شارع اليرموك المتفرع، عمارة السلام 3، مأرب',
+    phone: '+967 777 444 888',
+    whatsapp: '967777444888',
+    openHours: '6:00 ص – 12:30 ليلاً',
+    lat: 15.4680,
+    lng: 45.3150,
+    isVerified: true,
+    isPlaceholder: true,
+    availableCards: ['كرت 200 ريال', 'كرت 500 ريال'],
+  },
+];
