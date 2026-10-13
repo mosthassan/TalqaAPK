@@ -1,24 +1,15 @@
 import type { Metadata } from 'next';
-import { PageHeading, LiveSection } from '@/src/components/talqa/Features';
+import { MatchesView } from '@/src/components/views/MatchesView';
 
 export const metadata: Metadata = {
-  title: 'البث المباشر | طلقة نت',
-  description: 'مركز بث المباريات وأجواء كرة القدم في طلقة نت.',
+  title: 'البث المباشر HLS | طلقة نت',
+  description: 'مركز بث المباريات HLS وأجواء كرة القدم عبر سيرفر طلقة نت الداخلي.',
   openGraph: {
-    title: 'البث المباشر | طلقة نت',
-    description: 'عش حماس المباريات مع شبكة طلقة نت.',
+    title: 'البث المباشر HLS | طلقة نت',
+    description: 'عش حماس المباريات مع شبكة طلقة نت بدون استهلاك رصيدك.',
   },
 };
 
 export default function LivePage() {
-  return (
-    <>
-      <PageHeading
-        eyebrow="البث المباشر"
-        title="ملعبك، أينما كنت."
-        description="كل حماس كرة القدم، في مكان واحد."
-      />
-      <LiveSection />
-    </>
-  );
+  return <MatchesView />;
 }

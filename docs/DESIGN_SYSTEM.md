@@ -51,3 +51,6 @@
 | `Card` | بطاقات `gold-soft` لمسابقة الولاء و `network-soft` لبث المباريات |
 | `Chip` | اختيار الفئات بالذهب الملكي المتدرج |
 | `BottomNav` | شريط تنقل سفلي طائف بكبسولة ذهبية متحركة بنعومة عبر Motion |
+| `DistributorsMap` | خريطة Leaflet و OpenStreetMap تفاعلية بعلامات مخصصة ذهبية وشبكية |
+| `HlsVideoPlayer` | مشغل HLS مع ضوابط متكاملة (PiP، ملء الشاشة، Wake Lock، مستويات الجودة) |
+| `SpeedTestView` | عداد سرعة حي 60fps ورسم بياني مصغر Sparkline ومشاركة النتيجة |

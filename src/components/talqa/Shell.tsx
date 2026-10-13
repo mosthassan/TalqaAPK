@@ -17,6 +17,7 @@ import {
   LogIn,
   LogOut,
   Wifi,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 
@@ -29,6 +30,7 @@ interface NavItem {
 
 const nav: NavItem[] = [
   { to: '/', label: 'الرئيسية', icon: Home, shortLabel: 'الرئيسية' },
+  { to: '/packages', label: 'الباقات والخريطة', icon: Layers, shortLabel: 'الباقات' },
   { to: '/lounge', label: 'الاستراحة', icon: Gamepad2, shortLabel: 'الاستراحة' },
   { to: '/live', label: 'البث المباشر', icon: Radio, shortLabel: 'المباشر' },
   { to: '/speed', label: 'فحص السرعة', icon: Gauge, shortLabel: 'السرعة' },

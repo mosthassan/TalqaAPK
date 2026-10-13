@@ -117,7 +117,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section>
         <SignalRing
           lastPing={lastPing}
-          onStartTest={handleRunRealPing}
+          onStartTest={onOpenSpeedTest}
           isTesting={isTesting}
         />
       </section>

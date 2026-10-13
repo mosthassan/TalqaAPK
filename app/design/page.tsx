@@ -211,6 +211,36 @@ export default function DesignSystemPage() {
             isTesting={false}
           />
         </section>
+
+        {/* 6. Phase 2 Features Showcase */}
+        <section className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#57534E] font-heading">
+            6. ميزات المرحلة 2 الحية (Live Features)
+          </h3>
+          <div className="p-4 bg-white rounded-[20px] border border-[#E7E5E4] space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#1C1917]">فحص السرعة الفعلي (Cloudflare + Fallback)</span>
+              <Badge variant="gold-solid" size="sm">مكتمل</Badge>
+            </div>
+            <p className="text-[11px] text-[#57534E]">
+              قياس حقيقي للتحميل والرفع والبينج والتذبذب مع مزودين واختبارات Vitest.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <Link
+                href="/speed"
+                className="px-3 py-1.5 rounded-full bg-[#C59424] text-white text-[11px] font-bold"
+              >
+                تجربة فحص السرعة ↗
+              </Link>
+              <Link
+                href="/packages"
+                className="px-3 py-1.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-bold"
+              >
+                خريطة مأرب والباقات ↗
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

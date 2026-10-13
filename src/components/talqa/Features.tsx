@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { PRIZES, validateCards, prizeRotation } from '@/src/lib/rewards';
+import { SpeedTestView } from '@/src/components/speed/SpeedTestView';
 
 export function PageHeading({
   eyebrow,
@@ -631,117 +632,16 @@ export function RewardsPage() {
 }
 
 export function SpeedPage() {
-  const [running, setRunning] = useState(false);
-  const [speed, setSpeed] = useState<number | null>(null);
-  const [latency, setLatency] = useState<number | null>(null);
-  const [error, setError] = useState('');
-
-  async function test() {
-    setRunning(true);
-    setSpeed(null);
-    setLatency(null);
-    setError('');
-
-    try {
-      // Step 1: Measure ping latency using small fetch
-      let best = Infinity;
-      for (let i = 0; i < 3; i++) {
-        const start = performance.now();
-        const ping = await fetch(
-          `https://speed.cloudflare.com/__down?bytes=0&nocache=${Date.now()}-${i}`,
-          { cache: 'no-store', signal: AbortSignal.timeout(12000) }
-        );
-        if (!ping.ok) throw new Error();
-        best = Math.min(best, performance.now() - start);
-      }
-      setLatency(Math.round(best));
-
-      // Step 2: Measure download bandwidth
-      const start = performance.now();
-      const r = await fetch(
-        `https://speed.cloudflare.com/__down?bytes=5000000&nocache=${Date.now()}`,
-        { cache: 'no-store', signal: AbortSignal.timeout(45000) }
-      );
-      if (!r.ok) throw new Error();
-      const data = await r.arrayBuffer();
-      const durationSeconds = (performance.now() - start) / 1000;
-      const speedMbps = Number(
-        (((data.byteLength * 8) / durationSeconds) / 1000000).toFixed(1)
-      );
-      setSpeed(speedMbps);
-    } catch {
-      // Fallback realistic ping for offline or blocked environments
-      setLatency(38);
-      setSpeed(52.4);
-    } finally {
-      setRunning(false);
-    }
-  }
-
   return (
     <>
       <PageHeading
-        eyebrow="فحص السرعة"
+        eyebrow="فحص السرعة الفعلي"
         title="قوة اتصالك، بالأرقام."
-        description="قياس مباشر لسرعة التنزيل وزمن الاستجابة لاتصالك الحالي."
+        description="قياس دقيق لسرعة التنزيل والرفع الفعلي وزمن الاستجابة لاتصالك الحالي."
       />
-
-      <section className="speed-tool">
-        <div className="game-tag">
-          <Wifi size={16} /> اختبار الاتصال المباشر
-        </div>
-
-        <div className={running ? 'speed-dial testing' : 'speed-dial'}>
-          <Gauge />
-          <strong dir="ltr">{speed ?? '—'}</strong>
-          <span>Mbps</span>
-          <small>
-            {running
-              ? 'جارٍ قياس اتصالك…'
-              : speed !== null
-              ? 'سرعة التنزيل الحالية'
-              : 'جاهز للانطلاق؟'}
-          </small>
-        </div>
-
-        <Button size="lg" disabled={running} onClick={() => void test()}>
-          <Zap />
-          {running ? 'جارٍ الفحص…' : speed !== null ? 'إعادة الفحص' : 'ابدأ فحص السرعة'}
-        </Button>
-
-        {error && (
-          <p role="alert" className="form-message">
-            {error}
-          </p>
-        )}
-
-        <div className="speed-results">
-          <div>
-            <ArrowDown />
-            <span>التنزيل</span>
-            <strong dir="ltr">
-              {speed ?? '—'} <small>Mbps</small>
-            </strong>
-          </div>
-          <div>
-            <Gauge />
-            <span>زمن الاستجابة</span>
-            <strong dir="ltr">
-              {latency ?? '—'} <small>ms</small>
-            </strong>
-          </div>
-          <div>
-            <Wifi />
-            <span>خادم الاختبار</span>
-            <strong>Starlink / CF</strong>
-          </div>
-        </div>
-
-        <p className="speed-disclaimer">
-          النتيجة تقديرية وتتأثر بجهازك ومدى القرب من نقطة البث. الاختبار يستهلك
-          نحو 5 ميجابايت.
-        </p>
-      </section>
+      <div className="py-2">
+        <SpeedTestView />
+      </div>
     </>
   );
 }

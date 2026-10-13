@@ -83,3 +83,54 @@
   5. تحديث حلقة الإشارة `SignalRing` بقوس ترددات شبكية بالأزرق السيان وزر فحص ذهبي.
   6. تحديث كبسولة شريط التنقل السفلي والبطاقات وشارات الباقات لتتناغم بدقة مع الهوية الجديدة.
   7. توثيق القرار DEC-008 في `docs/DECISIONS.md` وتحديث `docs/DESIGN_SYSTEM.md`.
+
+---
+
+## [2026-10-13 10:15] المرحلة 2 — الميزات الحية: فحص السرعة الفعلي + الاستراحة + بث المباريات HLS + الخريطة + طبقة البيانات
+- **ما تم:**
+  1. **محرك فحص السرعة الفعلي (Throughput SpeedTest):**
+     - بناء محرك `SpeedTestRunner` بدعم مزودين: خوادم Cloudflare Global Edge ومزود محلي احتياطي عبر Route Handlers (`/api/speed/down` و`/api/speed/up`).
+     - قياس زمن الاستجابة والتذبذب بدقة (10 عينات مع استبعاد الإحماء وحساب الوسيط)، وقياس التحميل والرفع بمتوسط مقطوع بالميجابت/ثانية (Mbps).
+     - كتابة 11 اختبار وحدة في `src/lib/speedtest/math.test.ts` وتمريرها بنجاح 100% عبر Vitest.
+     - واجهة عداد حية 60fps مع خيار مشاركة النتيجة وسجل آخر 10 فحوصات برسم بياني مصغر Sparkline وتنبيه استهلاك بيانات الهاتف.
+  2. **خريطة نقاط التوزيع التفاعلية وتفاصيل الباقات:**
+     - دمج خريطة Leaflet و OpenStreetMap بدون أي مفتاح API مع تخصيص علامات الخريطة (ذهبية وسيان) ونوافذ المعلومات والتوجيه.
+     - حساب حالة فتح وإغلاق المحلات من ساعات مهيكلة وحساب المسافة التقديرية بالكيلومتر عبر Geolocation عند منح الإذن.
+     - ورقة تفاصيل سفلية Sheet لكل فئة كرت مع خطوات الاستخدام ومنافذ البيع وزر طلب واتساب المباشر.
+  3. **استراحة طلقة نت (Lounge View):**
+     - بناء بطاقات الاستراحة المغذاة من طبقة البيانات لسيرفر الأفلام Jellyfin وتنزيلات ألعاب وتطبيقات الشبكة بأحجامها الفعلية.
+     - التعامل مع قيود المحتوى المختلط (Mixed Content) بروابط تنقل علوية آمنة وإشعار صادق («تعمل داخل شبكة طلقة فقط»).
+     - إبقاء لعبة تحدي الذاكرة كنشاط ترفيهي يعمل بدون اتصال بالإنترنت.
+  4. **مشغل بث المباريات HLS:**
+     - بناء مشغل `HlsVideoPlayer` المعتمد على `hls.js` مع التشغيل الأصلي على Safari/iOS، ودعم ملء الشاشة، وPicture-in-Picture، وتبديل الجودة، وإعادة المحاولة.
+     - دمج Screen Wake Lock لمنع قفل الشاشة أثناء المشاهدة.
+     - زرع القنوات الثلاث بحالة `enabled: false` لحين اعتماد تراخيص البث بدون أرقام أو نتائج أو معلقين وهميين.
+  5. **طبقة البيانات المزدوجة (ContentRepository):**
+     - بناء تنفيذ البذور الثابتة التلقائي وتنفيذ Supabase التلقائي.
+     - كتابة ملف ترحيل SQL كامل `supabase/migrations/0001_content_tables.sql` مع سياسات أمان RLS للقراءة العامة الصارمة.
+  6. **ترويسات الأمان وPWA:**
+     - تحديث `vercel.json` بسياسة Permissions-Policy (`geolocation=(self)`, `camera=(self)`) وCSP مدروسة.
+     - ترقية Service Worker إلى النسخة `talqanet-cache-v2` وإضافة كاش لبلاطات OpenStreetMap.
+     - إعداد لقطات الشاشة التوثيقية في `docs/screenshots/phase2/`.
+- **الملفات الرئيسية:**
+  - `src/lib/speedtest/math.ts`, `src/lib/speedtest/math.test.ts`, `src/lib/speedtest/engine.ts`
+  - `app/api/speed/down/route.ts`, `app/api/speed/up/route.ts`
+  - `src/components/speed/SpeedTestView.tsx`, `src/components/modals/SpeedTestModal.tsx`
+  - `src/components/map/DistributorsMap.tsx`, `src/components/media/HlsVideoPlayer.tsx`
+  - `src/lib/data/repository.ts`, `supabase/migrations/0001_content_tables.sql`
+  - `src/components/views/LoungeView.tsx`, `src/components/views/MatchesView.tsx`, `src/components/views/PackagesView.tsx`
+  - `app/packages/page.tsx`, `app/speed/page.tsx`, `app/lounge/page.tsx`, `app/live/page.tsx`
+  - `public/sw.js`, `vercel.json`, `vitest.config.ts`, `.env.example`
+  - `docs/screenshots/phase2/*`, `docs/*`
+- **القرارات:** تم توثيق القرارات DEC-009 إلى DEC-013 في `docs/DECISIONS.md`.
+- **الالتزام (commit):** `phase2(features): implement real speedtest, leaflet map, hls player, and dual data layer`
+
+---
+
+## [2026-10-13 17:35] توثيق اعتماد Firebase Firestore & Auth بطلب صاحب المشروع
+
+- **ما تم:**
+  1. توثيق قرار DEC-014 في `docs/DECISIONS.md` باعتماد Google Firebase (`talqanet-cf3e1`) بقواعد Cloud Firestore ومصادقة Firebase Auth كقاعدة بيانات رسمية للمشروع بدلاً من Supabase.
+  2. تحديث خطة عمل المرحلة 3 في `docs/HANDOFF.md` لنقل مسابقة الولاء، وصندوق الجوائز، والمعاملات الذرية `runTransaction()`، ولوحة الإدارة إلى Firebase Firestore.
+  3. تحديث ملف `.env.example` بإضافة متغيرات تهيئة Firebase الرسمية.
+  4. تحديد البيانات المطلوبة من مالك المشروع (Web App Config Object) للربط الفوري.

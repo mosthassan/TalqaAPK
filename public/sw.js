@@ -1,10 +1,13 @@
 /**
  * Talqa Net PWA Service Worker
- * Version: talqanet-v1
- * Features: Precaching, StaleWhileRevalidate, CacheFirst, NetworkFirst navigation with offline page, Cache cleanup, and safe manual SKIP_WAITING flow.
+ * Version: talqanet-v2 (Phase 2 Update)
+ * Features: Precaching, StaleWhileRevalidate, CacheFirst, OSM Map Tiles Caching,
+ * Bypass for real speed test endpoints, and safe manual SKIP_WAITING flow.
  */
 
-const CACHE_NAME = 'talqanet-cache-v1';
+const CACHE_NAME = 'talqanet-cache-v2';
+const TILE_CACHE_NAME = 'talqanet-tiles-v2';
+
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
@@ -16,6 +19,18 @@ const PRECACHE_URLS = [
   '/apple-touch-icon.png',
   '/favicon.png',
 ];
+
+// Maximum cached map tiles to protect storage
+const MAX_TILES = 100;
+
+async function limitCacheSize(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    await cache.delete(keys[0]);
+    limitCacheSize(cacheName, maxItems);
+  }
+}
 
 // Install: Precache shell resources
 self.addEventListener('install', (event) => {
@@ -29,11 +44,12 @@ self.addEventListener('install', (event) => {
 
 // Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
+  const currentCaches = [CACHE_NAME, TILE_CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
+          if (!currentCaches.includes(name)) {
             return caches.delete(name);
           }
         })
@@ -54,11 +70,41 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // Ignore non-GET requests and external chrome-extensions / firestore sockets
+  // Ignore non-GET requests and external protocols
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
 
-  // 1. Navigation requests: NetworkFirst with offline.html fallback
+  // STRICT BYPASS: Never cache Speed Test endpoints (live measurement integrity)
+  if (
+    url.hostname.includes('speed.cloudflare.com') ||
+    url.pathname.startsWith('/api/speed')
+  ) {
+    return; // Pass through to network directly
+  }
+
+  // 1. OpenStreetMap Map Tiles: CacheFirst with capacity limit
+  if (url.hostname.endsWith('tile.openstreetmap.org')) {
+    event.respondWith(
+      caches.open(TILE_CACHE_NAME).then(async (tileCache) => {
+        const cached = await tileCache.match(request);
+        if (cached) return cached;
+
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.status === 200) {
+            tileCache.put(request, networkResponse.clone());
+            limitCacheSize(TILE_CACHE_NAME, MAX_TILES);
+          }
+          return networkResponse;
+        } catch {
+          return cached || new Response('', { status: 408 });
+        }
+      })
+    );
+    return;
+  }
+
+  // 2. Navigation requests: NetworkFirst with offline.html fallback
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -79,7 +125,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Static assets & images & fonts: CacheFirst
+  // 3. Static assets & images & fonts: CacheFirst
   if (
     url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|woff|woff2|ttf|css|js)$/) ||
     url.origin === 'https://fonts.googleapis.com' ||
@@ -109,13 +155,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Data / API requests: StaleWhileRevalidate
+  // 4. Data / API requests: StaleWhileRevalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
         }
         return networkResponse;
       }).catch(() => cachedResponse);
