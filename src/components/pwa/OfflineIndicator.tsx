@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { useOnlineStatus } from '@/src/hooks/useOnlineStatus';
+import { useIsClient } from '@/src/hooks/useIsClient';
 import { WifiOff } from 'lucide-react';
 
 export const OfflineIndicator: React.FC = () => {
+  const isClient = useIsClient();
   const isOnline = useOnlineStatus();
 
-  if (isOnline) return null;
+  if (!isClient || isOnline) return null;
 
   return (
     <div
