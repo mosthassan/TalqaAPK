@@ -187,7 +187,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-bold text-[#8C6311] bg-white/90 px-2.5 py-0.5 rounded-full border border-[#EEDAA2]">
-                المرحلة 3
+                مفعّلة الآن ✓
               </span>
               <Gift className="w-4 h-4 text-[#C59424]" strokeWidth={2} />
             </div>
@@ -195,7 +195,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               مسابقة الانتماء
             </h4>
             <p className="text-[11px] text-[#8C6311] mt-0.5 leading-relaxed font-normal">
-              10 كروت مستهلكة ← عجلة الحظ
+              10 كروت مستهلكة ← كرت فوري
             </p>
           </div>
 

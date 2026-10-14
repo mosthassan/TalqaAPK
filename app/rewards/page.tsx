@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { RewardsPage } from '@/src/components/talqa/Features';
+import { LoyaltyContestView } from '@/src/components/loyalty/LoyaltyContestView';
 
 export const metadata: Metadata = {
-  title: 'مكافآت الانتماء | طلقة نت',
-  description: 'اجمع عشرة كروت مستخدمة وشارك في عجلة مكافآت طلقة نت بفئات 200 و500 و1000.',
+  title: 'مسابقة الانتماء | طلقة نت',
+  description: 'اجمع 10 كروت مستهلكة من شبكة طلقة نت واستبدلها بكرت فوري جديد عبر عجلة الحظ السحابية.',
   openGraph: {
-    title: 'مكافآت الانتماء | طلقة نت',
-    description: 'عشرة كروت، لفة واحدة، ومكافأة لانتمائك.',
+    title: 'مسابقة الانتماء | طلقة نت',
+    description: '10 كروت مستهلكة = لفة عجلة حظ وكرت رابح فوري.',
   },
 };
 
 export default function Rewards() {
-  return <RewardsPage />;
+  return <LoyaltyContestView />;
 }

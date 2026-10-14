@@ -7,6 +7,7 @@ import {
   SpeedTestResult,
   getSpeedTestHistory,
 } from '@/src/lib/speedtest/engine';
+import { useIsClient } from '@/src/hooks/useIsClient';
 import { Button } from '@/src/components/ui/Button';
 import { Badge } from '@/src/components/ui/Badge';
 import { SignalRing } from '@/src/components/ui/SignalRing';

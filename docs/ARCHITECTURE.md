@@ -8,151 +8,131 @@
 
 ```
 /
-├── app/                      # Next.js App Router
-│   ├── design/               # صفحة دليل نظام التصميم للمطورين (/design)
+├── app/                          # Next.js 15 App Router
+│   ├── admin/                    # لوحة الإدارة والتحكم السحابية للمشرفين (/admin)
 │   │   └── page.tsx
-│   ├── globals.css           # متغيرات التصميم ورموز Design Tokens ونظام RTL
-│   ├── layout.tsx            # الترويسة الجذرية، الميتا، PWA Tags، والخطوط
-│   └── page.tsx              # صدفة التطبيق الرئيسية (App Shell) ومبدل الشاشات
-├── docs/                     # الذاكرة المشتركة وبروتوكول التسليم بين الوكلاء
-│   ├── screenshots/phase1/   # لقطات الشاشة التوثيقية للمرحلة الأولى
-│   ├── AGENT_LOG.md          # سجل الإنجازات والالتزامات (Append-Only)
-│   ├── ARCHITECTURE.md       # هذا الملف (الهيكل المعماري والمسارات)
-│   ├── DECISIONS.md          # سجل القرارات التقنية والبدائل وأسبابها
-│   ├── DESIGN_SYSTEM.md      # دليل الرموز والمكونات وحركات الواجهة
-│   ├── HANDOFF.md            # وثيقة التسليم المباشر للوكيل 2
-│   ├── PROJECT_BRIEF.md      # موجز المشروع والقواعد الصارمة والروابط
-│   └── TASKS.md              # قائمة المهام الإجمالية للمراحل 1 و2 و3
-├── legacy/                   # الكود القديم للمشروع كمرجع للقراءة فقط (مستبعد من البناء)
-├── public/                   # الأصول الثابتة وملفات PWA
-│   ├── apple-touch-icon.png  # أيقونة iOS بدقة 180x180
-│   ├── favicon.png           # أيقونة المفضلة
-│   ├── icon.svg              # الأيقونة المتجهة بدقة عالية
-│   ├── icon-maskable.svg     # أيقونة آمنة للمشغلات (Safe Margin)
-│   ├── manifest.json         # نسخة بديلة لملف البيان
-│   ├── manifest.webmanifest  # بيان PWA الرسمي وفق أحدث المعايير
-│   ├── offline.html          # صفحة السقوط النظيف عند انقطاع الاتصال
-│   ├── pwa-192x192.png       # أيقونة PWA القياسية للأجهزة الذكية
-│   ├── pwa-512x512.png       # أيقونة PWA عالية الدقة للرذاذ والشاشات
-│   ├── pwa-maskable-512x512.png # أيقونة أندرويد المتكيفة (Adaptive)
-│   └── sw.js                 # مشغل Service Worker المخصص (Workbox Patterns)
+│   ├── api/                      # مسارات الخادم (Route Handlers) المحمية
+│   │   ├── admin/                # مسارات عمليات الإدارة وصندوق الجوائز
+│   │   │   ├── content/route.ts
+│   │   │   └── loyalty/{vault,tiers,cards,transactions,config}/route.ts
+│   │   ├── loyalty/              # مسارات مسابقة الانتماء السحابية (Server-Authoritative)
+│   │   │   ├── config/route.ts
+│   │   │   ├── verify-card/route.ts
+│   │   │   └── redeem/route.ts
+│   │   └── speed/{down,up}/      # خوادم قياس السرعة الاحتياطية
+│   ├── design/                   # صفحة دليل نظام التصميم للمطورين (/design)
+│   ├── live/                     # بث المباريات المشغل المباشر (/live)
+│   ├── lounge/                   # الاستراحة والتنزيلات المحلية (/lounge)
+│   ├── packages/                 # باقات الكروت وخريطة مأرب (/packages)
+│   ├── rewards/                  # مسابقة الانتماء وعجلة الحظ الرسمية (/rewards)
+│   ├── speed/                    # فحص السرعة الشامل (/speed)
+│   ├── globals.css               # متغيرات التصميم ورموز Design Tokens ونظام RTL
+│   ├── layout.tsx                # الترويسة الجذرية، الميتا، PWA Tags، والخطوط
+│   └── page.tsx                  # صدفة التطبيق الرئيسية (App Shell) ومبدل الشاشات
+├── docs/                         # الذاكرة المشتركة وبروتوكول التسليم والتوثيق
+│   ├── AGENT_LOG.md              # سجل الإنجازات والالتزامات (Append-Only)
+│   ├── ARCHITECTURE.md           # هذا الملف (الهيكل المعماري والمسارات)
+│   ├── DECISIONS.md              # سجل القرارات التقنية والبدائل وأسبابها
+│   ├── DESIGN_SYSTEM.md          # دليل الرموز والمكونات وحركات الواجهة
+│   ├── HANDOFF.md                # وثيقة التسليم النهائية للإنتاج
+│   ├── PROJECT_BRIEF.md          # موجز المشروع والقواعد الصارمة والروابط
+│   ├── RELEASE_CHECKLIST.md      # قائمة التحقق ما قبل الإطلاق
+│   └── TASKS.md                  # قائمة المهام الإجمالية
+├── public/                       # الأصول الثابتة وملفات PWA
+│   ├── apple-touch-icon.png      # أيقونة iOS بدقة 180x180
+│   ├── favicon.png               # أيقونة المفضلة
+│   ├── icon.svg                  # الأيقونة المتجهة بدقة عالية
+│   ├── manifest.webmanifest      # بيان PWA الرسمي وفق أحدث المعايير
+│   ├── offline.html              # صفحة السقوط النظيف عند انقطاع الاتصال
+│   └── sw.js                     # مشغل Service Worker المخصص
 ├── src/
 │   ├── components/
-│   │   ├── layout/           # ترويسة التطبيق وشريط التصفح السفلي (5 تبويبات)
-│   │   │   ├── AppHeader.tsx
-│   │   │   └── BottomNav.tsx
-│   │   ├── modals/           # النوافذ والبطاقات الموسعة
-│   │   │   ├── LoyaltyPreviewModal.tsx
-│   │   │   └── SpeedTestModal.tsx
-│   │   ├── pwa/              # مكونات تجربة PWA والتثبيت والإشعارات
-│   │   │   ├── OfflineIndicator.tsx
-│   │   │   ├── PWAInstallBanner.tsx
-│   │   │   └── ServiceWorkerManager.tsx
-│   │   ├── ui/               # مكتبة مكونات التصميم الأساسية النيتف
-│   │   │   ├── Badge.tsx, Button.tsx, Card.tsx, Chip.tsx, EmptyState.tsx
-│   │   │   ├── IconButton.tsx, ListItem.tsx, Sheet.tsx, Skeleton.tsx, Tabs.tsx, Toast.tsx
-│   │   │   └── index.ts
-│   │   └── views/            # الشاشات الرئيسية الخمس
-│   │       ├── HomeView.tsx      # الرئيسية وأزرار t.net
-│   │       ├── LoungeView.tsx    # الاستراحة وسيرفر Jellyfin (المرحلة 2)
-│   │       ├── MatchesView.tsx   # بث المباريات HLS (المرحلة 2)
-│   │       ├── MoreView.tsx      # المزيد، الدعم، PWA، وتذييل المطور
-│   │       └── PackagesView.tsx  # الباقات ونقاط التوزيع
+│   │   ├── admin/                # مكونات لوحة الإدارة (AdminDashboardView)
+│   │   ├── layout/               # ترويسة التطبيق وشريط التصفح السفلي
+│   │   ├── loyalty/              # مسابقة الانتماء (LoyaltyContestView, FortuneWheelCanvas, QRScannerModal)
+│   │   ├── map/                  # خريطة نقاط التوزيع بـ Leaflet
+│   │   ├── media/                # مشغل HlsVideoPlayer مع Screen Wake Lock
+│   │   ├── modals/               # النوافذ المنبثقة (SpeedTestModal, LoyaltyPreviewModal)
+│   │   ├── pwa/                  # أدوات PWA (OfflineIndicator, PWAInstallBanner, ServiceWorkerManager)
+│   │   ├── speed/                # فحص السرعة التفاعلي (SpeedTestView)
+│   │   ├── ui/                   # مكتبة المكونات النيتف (Badge, Button, Card, Chip, Sheet, Toast, etc.)
+│   │   └── views/                # الشاشات الرئيسية (HomeView, PackagesView, LoungeView, MatchesView, MoreView)
 │   ├── config/
-│   │   └── links.ts          # مصدر الحقيقة الموحد للروابط والأرقام
-│   ├── data/                 # مصادر البيانات الثابتة
-│   │   ├── announcements.ts
-│   │   ├── distributors.ts   # نقاط التوزيع (موسومة بـ isPlaceholder: true)
-│   │   └── packages.ts       # باقات الكروت والأسعار
-│   ├── hooks/
-│   │   ├── useOnlineStatus.ts# مراقبة الاتصال الشبكي
-│   │   └── usePWAInstall.ts  # معالجة طلب التثبيت لكروم وiOS Safari
-│   └── types/
-│       └── index.ts          # العقود والأنماط المعرفة بدقة
-├── .env.example              # نموذج متغيرات البيئة بدون أسرار
-├── eslint.config.mjs         # ضبط فاحص الجودة ESLint واستبعاد legacy
-├── next.config.ts            # إعدادات Next.js App Router المستقلة
-├── package.json              # التبعيات الخفيفة وحزمة التشغيل
-├── tsconfig.json             # ضبط التايب سكريبت الصارم واستبعاد legacy
-└── vercel.json               # ترويسات الأمان وسياسات الكاش لـ Vercel
+│   │   └── links.ts              # مصدر الحقيقة الموحد للروابط الرسمية
+│   ├── data/                     # بذور البيانات الثابتة (Packages, Distributors, Announcements, Lounge, Channels)
+│   ├── hooks/                    # خطافات React المخصصة (useOnlineStatus, usePWAInstall, useIsClient)
+│   ├── lib/
+│   │   ├── audio/                # مركب الأصوات عبر Web Audio API (soundManager)
+│   │   ├── data/                 # طبقة البيانات المزدوجة (ContentRepository, FirestoreRepository, StaticSeedRepository)
+│   │   ├── firebase/             # اتصال Firebase Client SDK
+│   │   ├── loyalty/              # محرك الولاء السحابي واختبارات الوحدة (serverLoyaltyEngine)
+│   │   ├── server/               # أدوات الخادم الإدارية (firebaseAdmin, adminAuth)
+│   │   └── speedtest/            # محرك فحص السرعة الفعلي واختبارات الرياضيات
+│   └── types/                    # العقود والأنماط المعرفة بدقة (index.ts, loyalty.ts)
+├── firestore.rules               # قواعد أمان Firestore الصارمة
+├── .env.example                  # نموذج متغيرات البيئة بدون أسرار
+├── package.json                  # التبعيات الخفيفة وحزمة التشغيل
+├── tsconfig.json                 # ضبط التايب سكريبت الصارم
+└── vercel.json                   # ترويسات الأمان وسياسات الكاش لـ Vercel
 ```
 
 ---
 
-## 2) خريطة الشاشات والمسارات (Screen & Routing Map)
-
-التطبيق يعتمد نمط **Single-Page Application (SPA)** مدعوماً بروابط استعلام سريعة (`?tab=...`) وشريط تنقل سفلي ثابت (5 عناصر بحد أقصى):
+## 2) مسابقة الانتماء: البنية المعتمدة (Server-Authoritative Loyalty Architecture)
 
 ```
-                       ┌─────────────────────┐
-                       │     App Shell       │
-                       │  (AppHeader + Nav)  │
-                       └──────────┬──────────┘
-                                  │
-      ┌─────────────┬─────────────┼─────────────┬─────────────┐
-      ▼             ▼             ▼             ▼             ▼
-  [الرئيسية]     [الباقات]     [الاستراحة]     [المباريات]     [المزيد]
-  HomeView     PackagesView    LoungeView    MatchesView     MoreView
-      │             │             │             │             │
-      ├─ t.net      ├─ فئات الكروت ├─ Jellyfin   ├─ HLS Channels├─ الدعم الفني
-      ├─ فحص رصيد   ├─ نقاط التوزيع├─ تنزيلات    ├─ جداول حقيقية├─ تثبيت PWA
-      ├─ فحص السرعة └─ طلب واتساب └─ (مرحلة 2)   └─ (مرحلة 2)   ├─ معلومات
-      └─ مسابقة ولاء                                            └─ تذييل المطور
+[ متصفح المشترك (PWA) ]
+      │
+      ├─ 1. إدخال 10 كروت (لصق / كتابة / مسح QR)
+      ├─ 2. فحص لحظي للكرت: POST /api/loyalty/verify-card
+      │
+      └─ 3. طلب الاستبدال والسحب: POST /api/loyalty/redeem
+            (مصحوباً بـ Idempotency Key)
+                  │
+                  ▼
+      [ خادم التطبيق (Next.js Route Handler) ]
+            │
+            ├─ فحص معدل الطلبات (Rate Limiting) وتأخير تصاعدي
+            ├─ التحقق من الكروت الـ 10 (منع التكرار، التأكد أنها مستهلكة وليست جديدة)
+            ├─ فحص Idempotency: إذا كان مكرراً يُعاد نفس الفوز فوراً
+            ├─ سحب الجائزة عبر crypto.randomInt مرجحاً بنسب الفئات
+            │
+            ├─ معاملة ذرية في Firestore:
+            │     ├─ حرق الكروت الـ 10 في /consumed_vouchers
+            │     ├─ خصم كرت الجائزة من /reward_vault وتعليمه claimed
+            │     └─ تسجيل المعاملة في /reward_claims
+            │
+            └─ تسليم الكود الفائز للعميل فقط بعد نجاح العملية بالكامل
+                  │
+                  ▼
+      [ متصفح المشترك ]
+            ├─ دوران عجلة الحظ 60fps على Canvas لتهبط بدقة على الفئة المسحوبة
+            ├─ أصوات ميكانيكية + اهتزاز + قصاصات احتفال Confetti
+            └─ عرض الكود الفائز، زر النسخ، زر الانتقال لـ t.net، وحفظه في المحفظة
 ```
 
-- **المسار الخاص للمطورين:** `/design` يعرض مكتبة المكونات ورموز التصميم.
-- **الاختصارات السريعة (PWA Shortcuts):**
-  - `/?tab=packages` ← يفتح شاشة الباقات مباشرة.
-  - `/?tab=speed` ← يفتح نافذة فحص السرعة التفاعلية.
-  - `/?tab=loyalty` ← يفتح تفاصيل مسابقة الولاء.
+---
+
+## 3) قواعد أمان Firestore (Firestore Security Hardening)
+
+- **المحتوى العام (`packages`, `distributors`, `announcements`, `channels`, `lounge_items`, `app_settings`):**
+  `allow read: if true;` و `allow write: if request.auth != null;`.
+- **المجموعات الحساسة للمسابقة (`reward_vault`, `consumed_vouchers`, `reward_claims`, `network_cards_ledger`, `loyalty_idempotency`):**
+  `allow read, write: if request.auth != null;`.
+  لا يمكن لأي متصفح عادي قراءة أكواد الجوائز أو الكروت المحروقة مباشرة؛ كافة التعاملات تمر وجوباً عبر مسارات الخادم `/api/loyalty/*`.
 
 ---
 
-## 3) طبقة البيانات المزدوجة (Data Layer)
-
-- **نمط ContentRepository المزدوج (`src/lib/data/repository.ts`):**
-  1. **المخزن الثابت (StaticSeedRepository):** يعمل افتراضياً كخيار صفري الإعداد (Zero-Config) ومخزن مؤقت في `localStorage` بنمط Stale-While-Revalidate، مما يضمن أن التطبيق لا يعرض شاشة بيضاء أبداً حتى في وضع أوفلاين التام داخل مأرب.
-  2. **مخزن Firebase Firestore المباشر (FirestoreRepository):** تم اعتماده رسمياً بقرار DEC-014 وفق مشروع `talqanet-cf3e1` بـ Cloud Firestore على خطة Spark المجانية. يتصل بالمجموعات الرئيسية (`packages`, `distributors`, `announcements`, `channels`, `lounge_items`, `app_settings`) فور تزويد مفاتيح التهيئة.
-  3. **مسابقة الولاء والعمليات الذرية (Transactions):** تستفيد المرحلة 3 من `runTransaction()` في Firestore لإتمام سحب الجوائز ومنع تكرار استخدام الكروت المستهلكة في بيئة متزامنة بدون تضارب.
-  4. **قواعد الأمان (Firestore Security Rules):** قراءة عامة لمجموعات المحتوى المنشور، وكتابة محصورة بمسؤولي النظام ومسار المعاملات المصادق عليها.
-
----
-
-## 4) بنية وإستراتيجية PWA (Progressive Web App Architecture)
-
-1. **البيان (`public/manifest.webmanifest` و`manifest.json`):**
-   - يدعم `id: "/"`, `start_url: "/?source=pwa"`, `display: "standalone"`.
-   - استخدام ميزة `display_override: ["window-controls-overlay", "standalone", "minimal-ui"]`.
-   - أيقونات دائرية وأخرى متكيفة `maskable` مع هامش أمان بنسبة 15%.
-   - يدعم الوضع العربي `dir: "rtl"` و`lang: "ar"`.
-2. **الخدمة اليدوية في الخلفية (`public/sw.js` — ملف يدوي مستقل وليس Workbox):**
-   - **النسخة الحالية:** `talqanet-cache-v2` و `talqanet-tiles-v2`.
-   - **Precache:** تخزين صدفة التطبيق الأساسية وصفحة السقوط `offline.html`.
-   - **NetworkFirst:** للطلبات الملاحية مع الانتقال التلقائي إلى `offline.html` في حال تعذر الاتصال.
-   - **CacheFirst:** للأصول المجزأة والصور والخطوط وبلاطات OpenStreetMap لمأرب (بحد أقصى 100 بلاطة).
-   - **StaleWhileRevalidate:** لبيانات الباقات والمحتوى.
-   - **تجاوز فحص السرعة (Speed Test Bypass):** استثناء مسارات `speed.cloudflare.com` و`/api/speed/*` من الكاش لضمان دقة ونزاهة القياس الحي.
-   - **تدفق تحديث نظيف:** لا يتم تفعيل `skipWaiting` إجبارياً لعدم كسر جلسة المستخدم؛ يظهر تنبيه شريطي (Toast) بعنوان «تحديث جديد متاح» مع زر «تحديث الآن».
-   - **تدفق تحديث نظيف:** لا يتم تفعيل `skipWaiting` إجبارياً لعدم كسر جلسة المستخدم؛ يظهر تنبيه شريطي (Toast) بعنوان «تحديث جديد متاح» مع زر «تحديث الآن».
-3. **تثبيت التطبيق على الهواتف:**
-   - للأندرويد وكروم: التقاط الحدث `beforeinstallprompt` وعرض زر تثبيت بنقرة واحدة.
-   - لـ iOS Safari: كشف الجهاز وتقديم ورقة سفلية مرئية ترشد المستخدم (زر المشاركة ← إضافة للشاشة الرئيسية).
-   - إخفاء أدوات التثبيت تلقائياً عند التشغيل في وضع `standalone`.
-
----
-
-## 5) كيفية تشغيل وبناء المشروع
+## 4) كيفية تشغيل وبناء المشروع
 
 ```bash
 # تشغيل خادم التطوير المحلي
 npm run dev
 
-# فحص التايب سكريبت والأكواد البرمجية
+# فحص واختبارات الجودة
+npm test
 npm run lint
 
-# بناء نسخة الإنتاج النهائية
+# بناء نسخة الإنتاج المستقلة
 npm run build
-
-# تشغيل نسخة الإنتاج
-npm run start
 ```

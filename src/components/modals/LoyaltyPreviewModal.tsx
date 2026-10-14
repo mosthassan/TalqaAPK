@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Sheet } from '@/src/components/ui/Sheet';
 import { Button } from '@/src/components/ui/Button';
-import { Gift, Ticket, Award } from 'lucide-react';
+import { Gift, Ticket, Award, Sparkles, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/src/components/ui/Badge';
 
 interface LoyaltyPreviewModalProps {
@@ -20,7 +21,7 @@ export const LoyaltyPreviewModal: React.FC<LoyaltyPreviewModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="مسابقة الانتماء لشبكة طلقة"
-      subtitle="نظام ولاء المشتركين — جوائز وكروت مجانية"
+      subtitle="نظام ولاء المشتركين — جوائز وكروت مجانية فورية"
     >
       <div className="space-y-4 py-1 text-right">
         {/* Featured Loyalty Box */}
@@ -30,7 +31,7 @@ export const LoyaltyPreviewModal: React.FC<LoyaltyPreviewModalProps> = ({
               <Gift className="w-5 h-5 text-white" strokeWidth={2} />
             </div>
             <Badge variant="gold-solid" size="sm">
-              المرحلة 3
+              مفعّلة الآن ✓
             </Badge>
           </div>
 
@@ -69,14 +70,19 @@ export const LoyaltyPreviewModal: React.FC<LoyaltyPreviewModalProps> = ({
           <div className="flex items-start gap-3 p-3.5 bg-white border border-[#E7E5E4] rounded-[18px]">
             <Award className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" strokeWidth={2} />
             <div className="text-xs text-[#57534E] leading-relaxed">
-              <strong className="text-[#1C1917] font-semibold">جوائز فورية:</strong> كروت مجانية (200، 500، 1000، أو كرت شهري VIP) تصدر لك مباشرة برمز تفعيل رسمي.
+              <strong className="text-[#1C1917] font-semibold">جوائز فورية:</strong> كروت مجانية (1000، 2000، باقة 5GB، أو شهري 4000 VIP) تصدر لك مباشرة برمز تفعيل رسمي.
             </div>
           </div>
         </div>
 
-        <div className="pt-2">
-          <Button variant="gold" size="md" fullWidth onClick={onClose}>
-            فهمت، سأحتفظ بكروتي
+        <div className="pt-2 flex flex-col gap-2">
+          <Button asChild variant="gold" size="md" fullWidth onClick={onClose}>
+            <Link href="/rewards" className="flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4" /> فتح شاشة المسابقة وإدخال الكروت <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" fullWidth onClick={onClose}>
+            إغلاق
           </Button>
         </div>
       </div>

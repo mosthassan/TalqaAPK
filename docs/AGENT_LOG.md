@@ -134,3 +134,46 @@
   2. تحديث خطة عمل المرحلة 3 في `docs/HANDOFF.md` لنقل مسابقة الولاء، وصندوق الجوائز، والمعاملات الذرية `runTransaction()`، ولوحة الإدارة إلى Firebase Firestore.
   3. تحديث ملف `.env.example` بإضافة متغيرات تهيئة Firebase الرسمية.
   4. تحديد البيانات المطلوبة من مالك المشروع (Web App Config Object) للربط الفوري.
+
+---
+
+## [2026-10-13 19:00] المرحلة 3 — مسابقة الانتماء + لوحة الإدارة + الأمان + الإنهاء (الوكيل 3 — تسليم الإنتاج)
+
+- **ما تم:**
+  1. **مسابقة الانتماء ونظام الولاء السحابي (Server-Authoritative Loyalty System):**
+     - بناء المحرك السحابي `src/lib/loyalty/serverLoyaltyEngine.ts` مع خوارزمية سحب مشفرة عشوائية بـ `crypto.randomInt` من Node.js مرجحة بنسب الفئات.
+     - معالجة الخلل الأمني القديم جذرياً: حظر خروج أكواد الجوائز إلى العميل إلا بعد إتمام المعاملة بنجاح، ومنع قراءة مجموعات الجوائز والكروت المحروقة من المتصفح في `firestore.rules`.
+     - تنفيذ العمليات الذرية (Atomicity): التحقق من الكروت، حرقها، سحب الجائزة، وتسجيل المعاملة دفعة واحدة، مع تراجع كامل في حال نفاد المخزون دون حرق كروت المشترك.
+     - دعم مفتاح عدم التكرار (Idempotency Key) لإعادة نفس النتيجة عند تذبذب الشبكة بدون حرق مكرر.
+     - تطبيق Rate Limiting وبصمة IP hash وتأخير تصاعدي عند المحاولات الفاشلة وحماية الكروت الجديدة من الحرق.
+     - بناء واجهة المستخدم `LoyaltyContestView.tsx` بشريط دائري (0/10)، لصق دفعة واحدة، مسح QR بالكاميرا عبر `html5-qrcode`، وعجلة حظ 60fps على Canvas بأصوات ميكانيكية عبر Web Audio API وهزة تفاعلية واحتفال Confetti ومحفظة جوائز محلية.
+     - بناء مسارات API: `/api/loyalty/config`, `/api/loyalty/verify-card`, `/api/loyalty/redeem`.
+  2. **لوحة الإدارة والتحكم المصغّرة المحمية (`/admin`):**
+     - حماية المسار بمصادقة حقيقية عبر Firebase Authentication وصلاحيات المشرفين بدون أي PIN ثابت في الكود.
+     - بناء واجهة الإدارة `AdminDashboardView.tsx` المتوافقة مع الجوال والحواسيب:
+       - صندوق الجوائز (Prize Vault): استعراض المخزون، تنبيهات انخفاض الرصيد، إضافة فردية وجماعية (CSV)، وإخفاء الأكواد افتراضياً مع كشفها عند الطلب.
+       - فئات وأوزان السحب: تعديل النسب المئوية مع التحقق من أن المجموع = 100%.
+       - كروت الشبكة: استيراد الكروت المستهلكة من ميكروتك لدعم التحقق السحابي.
+       - سجل المعاملات: تتبع الفائزين والكروت المحروقة مع بحث وتصدير ملف CSV.
+       - مفتاح إيقاف وتشغيل المسابقة فوري وسقف الاستبدال اليومي.
+       - إدارة المحتوى (CMS) للباقات والإعلانات ونقاط التوزيع.
+     - مسارات API الإدارية: `/api/admin/loyalty/*` و`/api/admin/content`.
+  3. **الأمان والتنظيف وضمان الجودة:**
+     - تشديد قواعد `firestore.rules` لحظر قراءة `reward_vault` و`consumed_vouchers` من العميل.
+     - كتابة 10 اختبارات وحدة Vitest في `serverLoyaltyEngine.test.ts` (إجمالي 21 اختبار ناجح بنسبة 100%).
+     - حذف مجلد `legacy/` ومجلد `lovable-ref/` بالكامل لتسليم مستودع نقي.
+     - إنشاء وثيقة `README.md` وقائمة التحقق `docs/RELEASE_CHECKLIST.md` وإعادة كتابة `docs/HANDOFF.md`.
+     - اجتياز البناء النهائي `compile_applet` والفحص `eslint .` بنسبة 100%.
+
+- **الملفات الرئيسية:**
+  - `src/types/loyalty.ts`, `src/lib/server/firebaseAdmin.ts`, `src/lib/server/adminAuth.ts`
+  - `src/lib/loyalty/serverLoyaltyEngine.ts`, `src/lib/loyalty/serverLoyaltyEngine.test.ts`
+  - `src/lib/audio/soundManager.ts`, `src/components/loyalty/FortuneWheelCanvas.tsx`, `src/components/loyalty/QRScannerModal.tsx`
+  - `src/components/loyalty/LoyaltyContestView.tsx`, `app/rewards/page.tsx`
+  - `src/components/admin/AdminDashboardView.tsx`, `app/admin/page.tsx`
+  - `app/api/loyalty/config/route.ts`, `app/api/loyalty/verify-card/route.ts`, `app/api/loyalty/redeem/route.ts`
+  - `app/api/admin/loyalty/vault/route.ts`, `app/api/admin/loyalty/tiers/route.ts`, `app/api/admin/loyalty/cards/route.ts`, `app/api/admin/loyalty/transactions/route.ts`, `app/api/admin/loyalty/config/route.ts`, `app/api/admin/content/route.ts`
+  - `firestore.rules`, `.env.example`, `README.md`, `docs/RELEASE_CHECKLIST.md`, `docs/HANDOFF.md`, `docs/TASKS.md`, `docs/DECISIONS.md`, `docs/AGENT_LOG.md`
+- **القرارات:** تم توثيق القرارات DEC-015 إلى DEC-017 في `docs/DECISIONS.md`.
+- **الالتزام (commit):** `phase3(release): implement server-authoritative loyalty contest, admin dashboard, secure firestore rules, and release checklist`
+
