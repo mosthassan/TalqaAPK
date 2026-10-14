@@ -53,10 +53,15 @@ export const NETWORK_LINKS = {
       freefire: 'http://192.168.50.2:8080/files/freefire.apk',
     },
     hlsBase: 'http://192.168.50.2:8888/live/',
+    // Direct Live Stream Server URL for Matches
+    liveMatchUrl: 'http://192.168.50.2:8888/live/bein1/',
     streams: {
       bein1: 'http://192.168.50.2:8888/live/bein1/',
+      bein1Playlist: 'http://192.168.50.2:8888/live/bein1/index.m3u8',
       bein2: 'http://192.168.50.2:8888/live/bein2/',
+      bein2Playlist: 'http://192.168.50.2:8888/live/bein2/index.m3u8',
       ssc1: 'http://192.168.50.2:8888/live/ssc1/',
+      ssc1Playlist: 'http://192.168.50.2:8888/live/ssc1/index.m3u8',
     },
   },
 

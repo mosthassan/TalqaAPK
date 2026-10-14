@@ -15,6 +15,10 @@ import {
   WifiOff,
   Settings,
   ExternalLink,
+  Copy,
+  Check,
+  Radio,
+  Tv,
 } from 'lucide-react';
 import { NETWORK_LINKS } from '@/src/config/links';
 
@@ -29,6 +33,13 @@ interface HlsVideoPlayerProps {
   onClose?: () => void;
 }
 
+function getPlaylistUrl(url: string): string {
+  if (!url) return '';
+  if (url.endsWith('.m3u8')) return url;
+  if (url.endsWith('/')) return `${url}index.m3u8`;
+  return `${url}/index.m3u8`;
+}
+
 export default function HlsVideoPlayer({
   src,
   httpsUrl,
@@ -39,6 +50,7 @@ export default function HlsVideoPlayer({
   lanPlayerUrl,
 }: HlsVideoPlayerProps) {
   const effectiveSrc = httpsUrl || src;
+  const directServerUrl = src || NETWORK_LINKS.localServer.liveMatchUrl;
   const resolvedLanPlayerUrl =
     lanPlayerUrl ||
     `${NETWORK_LINKS.localServer.lanPlayerUrl}?ch=${channelId || 'bein1'}`;
@@ -51,6 +63,7 @@ export default function HlsVideoPlayer({
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const isPipSupported = useSyncExternalStore(
     () => () => {},
     () => (typeof document !== 'undefined' ? Boolean(document.pictureInPictureEnabled) : false),
@@ -61,6 +74,15 @@ export default function HlsVideoPlayer({
   const [qualities, setQualities] = useState<{ id: number; height: number; bitrate: number }[]>([]);
   const [currentQuality, setCurrentQuality] = useState<number>(-1); // -1 = Auto
   const [showQualityMenu, setShowQualityMenu] = useState(false);
+
+  const handleCopyLink = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(directServerUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      }).catch(() => {});
+    }
+  };
 
   // Request Wake Lock to prevent screen sleep while video plays
   const requestWakeLock = useCallback(async () => {
@@ -106,7 +128,8 @@ export default function HlsVideoPlayer({
         backBufferLength: 30,
       });
 
-      hls.loadSource(effectiveSrc);
+      const playlistUrl = getPlaylistUrl(effectiveSrc);
+      hls.loadSource(playlistUrl);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
@@ -128,7 +151,7 @@ export default function HlsVideoPlayer({
             case Hls.ErrorTypes.NETWORK_ERROR:
               setErrorState(
                 requiresLan
-                  ? 'هذا البث متاح داخل شبكة طلقة فقط (LAN)'
+                  ? 'هذا البث متاح داخل شبكة طلقة (LAN). يمكنك فتح الرابط المباشر أدناه في أي مشغل.'
                   : 'تعذر الاتصال بسيرفر البث المباشر'
               );
               hls.startLoad();
@@ -138,7 +161,7 @@ export default function HlsVideoPlayer({
               break;
             default:
               hls.destroy();
-              setErrorState('القناة متوقفة حالياً أو تتطلب المشغل المحلي.');
+              setErrorState('البث متاح عبر المشغل الداخلي أو نافذة السيرفر المباشرة.');
               break;
           }
         }
@@ -147,7 +170,7 @@ export default function HlsVideoPlayer({
       hlsRef.current = hls;
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Native Safari / iOS HLS support
-      video.src = effectiveSrc;
+      video.src = getPlaylistUrl(effectiveSrc);
       video.addEventListener('loadedmetadata', () => {
         setIsBuffering(false);
         video.play().catch(() => setIsPlaying(false));
@@ -155,7 +178,7 @@ export default function HlsVideoPlayer({
       video.addEventListener('error', () => {
         setErrorState(
           requiresLan
-            ? 'هذا البث متاح داخل شبكة طلقة فقط (LAN)'
+            ? 'هذا البث متاح داخل شبكة طلقة (LAN). يمكنك فتح الرابط المباشر أدناه.'
             : 'تعذر تحميل بث القناة'
         );
       });
@@ -244,10 +267,11 @@ export default function HlsVideoPlayer({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#E7E5E4] shadow-md group select-none"
-    >
+    <div className="w-full space-y-2">
+      <div
+        ref={containerRef}
+        className="relative w-full aspect-video bg-black rounded-[20px] overflow-hidden border border-[#E7E5E4] shadow-md group select-none"
+      >
       <video
         ref={videoRef}
         poster={poster}
@@ -282,24 +306,36 @@ export default function HlsVideoPlayer({
             {requiresLan ? <WifiOff className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
           </div>
           <h4 className="text-white text-sm font-bold font-heading mb-1">{title}</h4>
-          <p className="text-xs text-white/70 max-w-xs mb-4 leading-relaxed">{errorState}</p>
-          <div className="flex flex-col sm:flex-row items-center gap-2">
-            <button
-              onClick={initHls}
+          <p className="text-xs text-white/70 max-w-sm mb-2 leading-relaxed">{errorState}</p>
+          <div className="text-[11px] font-mono text-[#D4AF37] mb-4 bg-white/5 px-3 py-1 rounded-full border border-white/10" dir="ltr">
+            {directServerUrl}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <a
+              href={directServerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C59424] hover:bg-[#B58218] text-white text-xs font-bold transition-transform active:scale-95 shadow-sm"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              إعادة محاولة الاتصال
-            </button>
+              <ExternalLink className="w-3.5 h-3.5" />
+              فتح في سيرفر البث المباشر
+            </a>
             <a
               href={resolvedLanPlayerUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-transform active:scale-95 border border-white/20"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-[#D4AF37]" />
-              تشغيل عبر المشغل المحلي (LAN Player)
+              <Tv className="w-3.5 h-3.5 text-[#D4AF37]" />
+              المشغل المحلي (LAN Player)
             </a>
+            <button
+              onClick={initHls}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 text-white/80 text-xs font-medium transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              إعادة المحاولة
+            </button>
           </div>
         </div>
       )}
@@ -412,5 +448,65 @@ export default function HlsVideoPlayer({
         </div>
       </div>
     </div>
+
+    {/* Live Server Direct Access Bar */}
+    <div className="p-3 bg-gradient-to-r from-[#1C1917] via-[#292524] to-[#1C1917] rounded-[18px] text-white border border-[#44403C] flex flex-wrap items-center justify-between gap-2.5 text-xs font-body shadow-xs">
+      <div className="flex items-center gap-2.5">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+        <div className="text-right">
+          <div className="font-bold text-white font-heading text-[11px] sm:text-xs flex items-center gap-1.5">
+            <span>سيرفر البث المباشر (HLS LAN)</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">نشط الآن</span>
+          </div>
+          <div className="text-[10px] text-stone-300 font-mono tracking-tight" dir="ltr">
+            {directServerUrl}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <a
+          href={directServerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C59424] hover:bg-[#B58218] text-white rounded-full font-bold text-[11px] transition-transform active:scale-95 shadow-xs"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>فتح في السيرفر المباشر</span>
+        </a>
+
+        <a
+          href={resolvedLanPlayerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-stone-200 border border-white/20 rounded-full font-medium text-[11px] transition-colors"
+        >
+          <Tv className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span>مشغل LAN</span>
+        </a>
+
+        <button
+          onClick={handleCopyLink}
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-stone-300 rounded-full font-medium text-[11px] transition-colors"
+          title="نسخ رابط سيرفر البث"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-emerald-400">تم النسخ</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3.5 h-3.5" />
+              <span>نسخ</span>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
   );
 }

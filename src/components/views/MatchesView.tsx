@@ -43,19 +43,58 @@ export const MatchesView: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-24 text-right font-body">
-      {/* Header */}
-      <div>
+      {/* Header & Server Status */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-[#1C1917] tracking-tight font-heading">
             بث المباريات المباشر
           </h2>
           <Badge variant="network" size="sm">
-            HLS مباشر
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-1" />
+            HLS مباشر نشط
           </Badge>
         </div>
-        <p className="text-xs text-[#57534E] mt-0.5 leading-relaxed">
-          مركز بث المباريات عبر شبكة طلقة نت المحلية: مشاهدة بدون تقطيع وبدون استهلاك لرصيد الباقة.
+        <p className="text-xs text-[#57534E] leading-relaxed">
+          مركز بث المباريات عبر شبكة طلقة نت المحلية: مشاهدة بدون تقطيع وبدون استهلاك لرصيد الباقة لمشتركي الواي فاي.
         </p>
+
+        {/* Live Server Address Card */}
+        <div className="p-3.5 bg-gradient-to-r from-[#FDF7E7] via-white to-[#F8F8F7] border border-[#EEDAA2] rounded-[18px] text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full bg-[#D4AF37]/15 text-[#8C6311] flex items-center justify-center shrink-0">
+              <Tv className="w-5 h-5 text-[#C59424]" />
+            </div>
+            <div>
+              <div className="font-bold text-[#1C1917] font-heading flex items-center gap-1.5">
+                <span>سيرفر البث المباشر المحلي:</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">جاهز ويعمل</span>
+              </div>
+              <div className="text-[11px] text-[#57534E] font-mono mt-0.5" dir="ltr">
+                {NETWORK_LINKS.localServer.liveMatchUrl}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <a
+              href={NETWORK_LINKS.localServer.liveMatchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#C59424] hover:bg-[#B58218] text-white rounded-full font-bold text-xs transition-transform active:scale-95 shadow-xs flex-1 sm:flex-initial"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>فتح السيرفر المباشر</span>
+            </a>
+            <a
+              href={`${NETWORK_LINKS.localServer.lanPlayerUrl}?ch=bein1`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-50 text-[#1C1917] border border-[#E7E5E4] rounded-full font-semibold text-xs transition-colors flex-1 sm:flex-initial"
+            >
+              <span>مشغل LAN</span>
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Video Player or Honest Awaiting State */}

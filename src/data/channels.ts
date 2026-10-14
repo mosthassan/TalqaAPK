@@ -11,11 +11,13 @@ export const INITIAL_CHANNELS: LiveChannel[] = [
   {
     id: 'bein1',
     name: 'beIN Sports HD 1',
-    streamUrl: NETWORK_LINKS.localServer.streams.bein1,
+    streamUrl: NETWORK_LINKS.localServer.streams.bein1, // http://192.168.50.2:8888/live/bein1/
     category: 'كرة قدم عربية وعالمية',
     enabled: true, // Enabled for local LAN Wi-Fi network streaming
     requiresLan: true,
     status: 'live',
+    matchTitle: 'قمة الجولة الكروية | بث مباشر مجاني',
+    tournament: 'سيرفر طلقة نت الداخلي (192.168.50.2:8888)',
   },
   {
     id: 'bein2',
@@ -25,6 +27,8 @@ export const INITIAL_CHANNELS: LiveChannel[] = [
     enabled: true, // Enabled for local LAN Wi-Fi network streaming
     requiresLan: true,
     status: 'live',
+    matchTitle: 'الدوريات الأوروبية ودوري الأبطال',
+    tournament: 'سيرفر طلقة نت الداخلي (192.168.50.2:8888)',
   },
   {
     id: 'ssc1',
@@ -34,5 +38,7 @@ export const INITIAL_CHANNELS: LiveChannel[] = [
     enabled: true, // Enabled for local LAN Wi-Fi network streaming
     requiresLan: true,
     status: 'live',
+    matchTitle: 'دوري روشن والبطولات الآسيوية',
+    tournament: 'سيرفر طلقة نت الداخلي (192.168.50.2:8888)',
   },
 ];

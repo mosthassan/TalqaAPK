@@ -23,10 +23,13 @@ import {
   CircleHelp,
   ShieldCheck,
   Layers,
+  ExternalLink,
+  Tv,
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { PRIZES, validateCards, prizeRotation } from '@/src/lib/rewards';
 import { SpeedTestView } from '@/src/components/speed/SpeedTestView';
+import { NETWORK_LINKS } from '@/src/config/links';
 
 export function PageHeading({
   eyebrow,
@@ -214,18 +217,45 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
   const [tab, setTab] = useState('الكل');
   const [open, setOpen] = useState(false);
 
+  const channelsList = [
+    {
+      id: 'bein1',
+      name: 'beIN Sports HD 1',
+      serverUrl: NETWORK_LINKS.localServer.streams.bein1, // http://192.168.50.2:8888/live/bein1/
+      category: 'الدوري الإنجليزي والإسباني',
+      tag: 'قمة الجولة الكروية',
+      active: true,
+    },
+    {
+      id: 'bein2',
+      name: 'beIN Sports HD 2',
+      serverUrl: NETWORK_LINKS.localServer.streams.bein2,
+      category: 'دوري أبطال أوروبا',
+      tag: 'البطولات الأوروبية',
+      active: true,
+    },
+    {
+      id: 'ssc1',
+      name: 'SSC Sports 1 HD',
+      serverUrl: NETWORK_LINKS.localServer.streams.ssc1,
+      category: 'دوري المحترفين والآسيوية',
+      tag: 'دوري روشن للمحترفين',
+      active: true,
+    },
+  ];
+
   return (
     <section className={compact ? 'live-section' : 'live-section full'}>
       <div className="section-heading">
         <h2>
-          <span className="live-dot" /> أجواء المباريات
+          <span className="live-dot" /> أجواء المباريات والبث الحي
         </h2>
         {compact ? (
           <Link href="/live">
-            عرض الكل <ArrowLeft size={14} />
+            مركز البث المباشر <ArrowLeft size={14} />
           </Link>
         ) : (
-          <span>ملعبك، أينما كنت</span>
+          <span>ملعبك، أينما كنت عبر شبكة طلقة نت</span>
         )}
       </div>
 
@@ -238,25 +268,36 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
           referrerPolicy="no-referrer"
         />
         <span className="cover-badge">
-          <Radio size={13} /> عالم كرة القدم
+          <span className="live-dot" /> مباشر الآن • beIN Sports 1 HD
         </span>
         <div className="match-cover-content">
-          <span>هنا يبدأ الحماس</span>
+          <span>سيرفر طلقة نت الداخلي مجانًا بدون كرت</span>
           <h3>
-            كل لحظة. كل هدف.
+            beIN Sports 1 HD
             <br />
-            عيش المباراة.
+            عش حماس القمة مباشرة
           </h3>
-          <Button variant="secondary" onClick={() => setOpen(true)}>
-            <Play fill="currentColor" /> مركز البث
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button asChild variant="secondary">
+              <Link href="/live">
+                <Play fill="currentColor" size={14} /> مركز البث المباشر
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setOpen(true)}
+              className="border-white/40 text-white bg-black/40 hover:bg-black/60 backdrop-blur-xs text-xs"
+            >
+              <ExternalLink size={13} /> سيرفر البث (192.168.50.2:8888)
+            </Button>
+          </div>
         </div>
       </div>
 
       {!compact && (
-        <>
+        <div className="space-y-4 my-6">
           <div className="filter-tabs">
-            {['الكل', 'الدوري الإسباني', 'الدوري الإنجليزي', 'دوري الأبطال'].map(
+            {['الكل', 'الدوري الإسباني', 'الدوري الإنجليزي', 'دوري الأبطال', 'دوري روشن'].map(
               (t) => (
                 <Button
                   key={t}
@@ -268,26 +309,54 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
               )
             )}
           </div>
-          <div className="empty-state">
-            <Radio />
-            <h3>نترقب صافرة البداية</h3>
-            <p>
-              لا توجد مباريات متاحة للبث في{' '}
-              {tab === 'الكل' ? 'الوقت الحالي' : tab}.
-            </p>
-            <span>سيظهر جدول المباريات عند ربط مصدر البث ومواعيد اللقاءات.</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {channelsList.map((ch) => (
+              <div
+                key={ch.id}
+                className="p-4 bg-surface border border-border rounded-xl text-right flex flex-col justify-between gap-3 shadow-xs"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      مباشر LAN
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">{ch.tag}</span>
+                  </div>
+                  <h4 className="font-bold text-foreground text-sm font-heading">{ch.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">{ch.category}</p>
+                  <p className="text-[10px] text-stone-400 font-mono mt-1" dir="ltr">
+                    {ch.serverUrl}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                  <Button asChild size="sm" variant="gold" className="flex-1">
+                    <Link href="/live">
+                      <Play fill="currentColor" size={13} /> مشاهدة الآن
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="flex-1">
+                    <a href={ch.serverUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink size={13} /> فتح السيرفر
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
-        </>
+        </div>
       )}
 
       {compact && (
         <div className="match-caption">
           <span>
-            <span className="status-dot" /> ترقب المباريات القادمة
+            <span className="status-dot" style={{ backgroundColor: '#10B981' }} /> سيرفر البث المحلي جاهز: 192.168.50.2:8888
           </span>
-          <span>
-            البث قريبًا <ArrowLeft size={13} />
-          </span>
+          <Link href="/live">
+            مشاهدة البث <ArrowLeft size={13} />
+          </Link>
         </div>
       )}
 
@@ -297,18 +366,45 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
             className="modal small"
             role="dialog"
             aria-modal="true"
-            aria-label="مركز البث"
+            aria-label="مركز البث المباشر"
             onClick={(e) => e.stopPropagation()}
           >
-            <Radio className="text-primary" />
-            <h2>البث لم يبدأ بعد</h2>
+            <div className="w-12 h-12 rounded-full bg-[#D4AF37]/15 text-[#C59424] flex items-center justify-center mx-auto mb-3">
+              <Tv className="w-6 h-6" />
+            </div>
+            <h2>سيرفر البث المباشر للمباريات</h2>
             <p>
-              سيكون البث متاحًا هنا عند توفير قنوات ومصادر بث مرخصة للشبكة في
-              مواعيد القمم الكروية.
+              يعمل البث المباشر محلياً وبالمجان لمشتركي شبكة طلقة نت بدون استهلاك لرصيد الباقة أو الحاجة لكروت إنترنت.
             </p>
-            <Button className="w-full" onClick={() => setOpen(false)}>
-              حسنًا <Check />
-            </Button>
+
+            <div className="p-3 bg-stone-900 rounded-lg text-right text-xs my-3 border border-stone-800">
+              <span className="text-[11px] text-stone-400 block mb-1">رابط السيرفر الداخلي المباشر:</span>
+              <code className="text-[#D4AF37] font-mono text-[11px] select-all block break-all" dir="ltr">
+                {NETWORK_LINKS.localServer.liveMatchUrl}
+              </code>
+            </div>
+
+            <div className="space-y-2 w-full mt-4">
+              <Button asChild className="w-full" variant="gold">
+                <Link href="/live">
+                  <Play fill="currentColor" size={14} className="ml-1" />
+                  تشغيل عبر مركز البث المباشر
+                </Link>
+              </Button>
+              <Button asChild className="w-full" variant="outline">
+                <a
+                  href={NETWORK_LINKS.localServer.liveMatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={14} className="ml-1" />
+                  فتح نافذة السيرفر المباشر
+                </a>
+              </Button>
+              <Button className="w-full" variant="ghost" onClick={() => setOpen(false)}>
+                إغلاق <Check size={14} />
+              </Button>
+            </div>
           </div>
         </div>
       )}
