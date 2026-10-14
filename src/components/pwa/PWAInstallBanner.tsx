@@ -2,17 +2,19 @@
 
 import React, { useState } from 'react';
 import { usePWAInstall } from '@/src/hooks/usePWAInstall';
+import { useIsClient } from '@/src/hooks/useIsClient';
 import { Download, Share2, PlusSquare, Smartphone, Check } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { Sheet } from '@/src/components/ui/Sheet';
 
 export const PWAInstallBanner: React.FC = () => {
+  const isClient = useIsClient();
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
 
-  // If already running inside standalone app, do not display install banners
-  if (isInstalled) {
+  // If already running inside standalone app or during SSR, do not display install banners
+  if (!isClient || isInstalled) {
     return null;
   }
 

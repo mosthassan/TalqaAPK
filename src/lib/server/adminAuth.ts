@@ -14,18 +14,22 @@ import { getAdminAuth } from '@/src/lib/server/firebaseAdmin';
 
 export interface AdminAuthResult {
   isAdmin: boolean;
+  isOwner?: boolean;
   uid?: string;
   email?: string;
   error?: string;
   statusCode?: number;
 }
 
+import { getAdminFirestore } from '@/src/lib/server/firebaseAdmin';
+import { getTestOwnerRecord } from '@/src/lib/server/bootstrapStore';
+
 export async function verifyAdminRequest(req: NextRequest): Promise<AdminAuthResult> {
   // Test-only mock bypass for isolated unit tests
   if (process.env.NODE_ENV === 'test') {
     const testAdminKey = req.headers.get('x-test-admin-key');
     if (testAdminKey === 'test-secret-authorized-admin') {
-      return { isAdmin: true, uid: 'test-admin-uid', email: 'test-admin@talqanet.ye' };
+      return { isAdmin: true, isOwner: true, uid: 'test-admin-uid', email: 'test-admin@talqanet.ye' };
     }
   }
 
@@ -60,17 +64,64 @@ export async function verifyAdminRequest(req: NextRequest): Promise<AdminAuthRes
   try {
     const decoded = await adminAuth.verifyIdToken(token);
     const email = decoded.email?.toLowerCase();
+    const uid = decoded.uid;
 
-    // Verify admin custom claim (Server-authoritative)
+    // 1. Verify admin custom claim (Server-authoritative)
     const hasAdminClaim = Boolean(decoded.admin === true);
+    const isOwnerClaim = decoded.role === 'owner';
 
-    // Optional environment variable fallback for emergency owner setup only
-    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-    const isConfiguredBootstrapEmail = Boolean(bootstrapEmail && email === bootstrapEmail);
+    // 2. Check configured owner/bootstrap emails
+    const bootstrapEmails = [
+      process.env.ADMIN_BOOTSTRAP_EMAIL,
+      process.env.FIREBASE_CLIENT_EMAIL,
+    ]
+      .filter(Boolean)
+      .flatMap((s) => (s as string).split(','))
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.includes('@'));
 
-    if (hasAdminClaim || isConfiguredBootstrapEmail) {
+    const isBootstrapEmail = Boolean(email && bootstrapEmails.includes(email));
+
+    // 3. Check memory test store
+    const testRecord = getTestOwnerRecord();
+    const isTestOwner = Boolean(
+      testRecord && (testRecord.uid === uid || (email && testRecord.email?.toLowerCase() === email))
+    );
+
+    // 4. Check Firestore owner record
+    let isFirestoreOwner = false;
+    let isFirestoreAdmin = false;
+    const fs = getAdminFirestore();
+    if (fs) {
+      try {
+        const ownerSnap = await fs.collection('admin_config').doc('owner').get();
+        if (ownerSnap.exists) {
+          const ownerData = ownerSnap.data();
+          if (ownerData?.uid === uid || (email && ownerData?.email?.toLowerCase() === email)) {
+            isFirestoreOwner = true;
+          }
+        }
+
+        const adminsSnap = await fs.collection('admin_config').doc('admins').get();
+        if (adminsSnap.exists && email) {
+          const emailsMap = adminsSnap.data()?.emails || {};
+          const safeKey = email.replace(/[\.]/g, '_');
+          if (emailsMap[safeKey] && emailsMap[safeKey].active !== false) {
+            isFirestoreAdmin = true;
+          }
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    }
+
+    const isOwner = isOwnerClaim || isBootstrapEmail || isTestOwner || isFirestoreOwner;
+    const isAdmin = hasAdminClaim || isOwner || isFirestoreAdmin;
+
+    if (isAdmin) {
       return {
         isAdmin: true,
+        isOwner,
         uid: decoded.uid,
         email: decoded.email,
       };

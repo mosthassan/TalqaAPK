@@ -103,29 +103,54 @@ export function AdminDashboardView() {
   // Verify and refresh claims
   const checkClaimsAndBootstrap = useCallback(async (user: User) => {
     try {
+      setAuthLoading(true);
+      const token = await user.getIdToken();
       let idTokenResult = await user.getIdTokenResult(false);
       let hasAdmin = Boolean(idTokenResult.claims.admin);
       let isOwner = idTokenResult.claims.role === 'owner';
 
-      // If user doesn't have admin claim yet, attempt the single-use Owner Bootstrap
-      if (!hasAdmin) {
-        const token = await user.getIdToken();
-        const bootRes = await fetch('/api/admin/bootstrap', {
-          method: 'POST',
+      // 1. Verify with server-authoritative admin verification endpoint
+      try {
+        const verifyRes = await fetch('/api/admin/verify', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        if (bootRes.ok) {
-          const bootData = await bootRes.json();
-          if (bootData.success && bootData.isOwner) {
-            setBootstrapMessage('🎉 مرحباً بك! تم تسجيل حسابك كمالك رئيسي (Owner) للتطبيق.');
-            // Force refresh token to obtain newly set custom claims
-            idTokenResult = await user.getIdTokenResult(true);
-            hasAdmin = Boolean(idTokenResult.claims.admin);
-            isOwner = idTokenResult.claims.role === 'owner';
+        if (verifyRes.ok) {
+          const verifyData = await verifyRes.json();
+          if (verifyData.isAdmin) {
+            hasAdmin = true;
+            if (verifyData.isOwner) isOwner = true;
           }
+        }
+      } catch {
+        // Fallback to bootstrap flow
+      }
+
+      // 2. If user doesn't have admin privileges yet, attempt the Owner Bootstrap
+      if (!hasAdmin) {
+        try {
+          const bootRes = await fetch('/api/admin/bootstrap', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const bootData = await bootRes.json().catch(() => ({}));
+          if (bootRes.ok && bootData.success) {
+            hasAdmin = true;
+            if (bootData.isOwner) isOwner = true;
+            setBootstrapMessage(
+              bootData.message || '🎉 مرحباً بك! تم تسجيل حسابك كمالك رئيسي (Owner) للتطبيق.'
+            );
+            // Refresh token in background to pick up newly set custom claims if available
+            user.getIdTokenResult(true).catch(() => {});
+          } else if (bootData.error) {
+            setLoginError(bootData.error);
+          }
+        } catch (bootErr) {
+          console.warn('[AdminDashboard] Bootstrap call error:', bootErr);
         }
       }
 
@@ -135,6 +160,7 @@ export function AdminDashboardView() {
       setAuthToken(finalToken);
     } catch {
       setIsAdminUser(false);
+      setIsOwnerUser(false);
     } finally {
       setAuthLoading(false);
     }

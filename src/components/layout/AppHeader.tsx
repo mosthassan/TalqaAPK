@@ -4,10 +4,13 @@ import React from 'react';
 import { NETWORK_LINKS } from '@/src/config/links';
 import { BrandLogo } from '@/src/components/ui/BrandLogo';
 import { useOnlineStatus } from '@/src/hooks/useOnlineStatus';
+import { useIsClient } from '@/src/hooks/useIsClient';
 import { ArrowUpRight } from 'lucide-react';
 
 export const AppHeader: React.FC = () => {
-  const isOnline = useOnlineStatus();
+  const isClient = useIsClient();
+  const rawIsOnline = useOnlineStatus();
+  const isOnline = isClient ? rawIsOnline : true;
 
   return (
     <header className="sticky top-0 z-30 bg-[#F8F8F7]/95 backdrop-blur-md border-b border-[#E7E5E4] px-4 py-3 transition-all">

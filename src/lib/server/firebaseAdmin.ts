@@ -62,8 +62,11 @@ export function getAdminApp(): App | null {
       return adminApp;
     }
 
-    // In local dev/testing without service account, do not throw, return null
-    return null;
+    // Initialize with projectId so that ID token verification and Firestore services are available
+    adminApp = (adminObj?.initializeApp || adminObj?.default?.initializeApp)({
+      projectId,
+    });
+    return adminApp;
   } catch (error) {
     console.warn('[firebaseAdmin] Firebase Admin fallback mode:', (error as Error).message);
     return null;

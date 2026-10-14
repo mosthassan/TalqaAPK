@@ -216,146 +216,150 @@ export function HomePage() {
 export function LiveSection({ compact = false }: { compact?: boolean }) {
   const [tab, setTab] = useState('الكل');
   const [open, setOpen] = useState(false);
-
-  const channelsList = [
-    {
-      id: 'bein1',
-      name: 'beIN Sports HD 1',
-      serverUrl: NETWORK_LINKS.localServer.streams.bein1, // http://192.168.50.2:8888/live/bein1/
-      category: 'الدوري الإنجليزي والإسباني',
-      tag: 'قمة الجولة الكروية',
-      active: true,
-    },
-    {
-      id: 'bein2',
-      name: 'beIN Sports HD 2',
-      serverUrl: NETWORK_LINKS.localServer.streams.bein2,
-      category: 'دوري أبطال أوروبا',
-      tag: 'البطولات الأوروبية',
-      active: true,
-    },
-    {
-      id: 'ssc1',
-      name: 'SSC Sports 1 HD',
-      serverUrl: NETWORK_LINKS.localServer.streams.ssc1,
-      category: 'دوري المحترفين والآسيوية',
-      tag: 'دوري روشن للمحترفين',
-      active: true,
-    },
-  ];
+  const liveMatchUrl = NETWORK_LINKS.localServer.liveMatchUrl; // http://192.168.50.2:8888/live/bein1/
 
   return (
     <section className={compact ? 'live-section' : 'live-section full'}>
       <div className="section-heading">
         <h2>
-          <span className="live-dot" /> أجواء المباريات والبث الحي
+          <span className="live-dot" /> أجواء المباريات المباشرة
         </h2>
         {compact ? (
-          <Link href="/live">
+          <Link href="/live" className="text-xs font-bold text-accent flex items-center gap-1 hover:underline">
             مركز البث المباشر <ArrowLeft size={14} />
           </Link>
         ) : (
-          <span>ملعبك، أينما كنت عبر شبكة طلقة نت</span>
+          <span className="text-xs text-ink-2">سيرفر بث داخلي مجاني وبدون استهلاك كرت النت</span>
         )}
       </div>
 
-      <div className="match-cover">
+      <div className="match-cover relative overflow-hidden rounded-3xl">
         <Image
           src="/assets/football.jpg"
           width={1536}
           height={864}
           alt="لاعبان يتنافسان في ملعب كرة قدم مضاء"
           referrerPolicy="no-referrer"
+          className="w-full h-full object-cover"
         />
-        <span className="cover-badge">
-          <span className="live-dot" /> مباشر الآن • beIN Sports 1 HD
+        <span className="cover-badge flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <Radio size={13} /> سيرفر طلقة نت للبث (LAN)
         </span>
         <div className="match-cover-content">
-          <span>سيرفر طلقة نت الداخلي مجانًا بدون كرت</span>
+          <span className="text-xs font-bold tracking-wide uppercase text-accent-light">
+            بث مباشر محلي مجاني 100%
+          </span>
           <h3>
-            beIN Sports 1 HD
+            beIN Sports HD 1
             <br />
-            عش حماس القمة مباشرة
+            مباريات اليوم بجودة فائقة
           </h3>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button asChild variant="secondary">
-              <Link href="/live">
-                <Play fill="currentColor" size={14} /> مركز البث المباشر
-              </Link>
-            </Button>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Link href="/live">
+              <Button variant="secondary" className="gap-2 font-bold shadow-md">
+                <Play fill="currentColor" size={16} /> دخول مركز البث
+              </Button>
+            </Link>
             <Button
               variant="outline"
               onClick={() => setOpen(true)}
-              className="border-white/40 text-white bg-black/40 hover:bg-black/60 backdrop-blur-xs text-xs"
+              className="bg-white/20 hover:bg-white/30 text-white border-white/40 gap-1.5 text-xs backdrop-blur-sm"
             >
-              <ExternalLink size={13} /> سيرفر البث (192.168.50.2:8888)
+              <Tv size={14} /> تفاصيل السيرفر
             </Button>
           </div>
         </div>
       </div>
 
       {!compact && (
-        <div className="space-y-4 my-6">
-          <div className="filter-tabs">
-            {['الكل', 'الدوري الإسباني', 'الدوري الإنجليزي', 'دوري الأبطال', 'دوري روشن'].map(
-              (t) => (
-                <Button
-                  key={t}
-                  variant={tab === t ? 'default' : 'ghost'}
-                  onClick={() => setTab(t)}
-                >
-                  {t}
-                </Button>
-              )
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {channelsList.map((ch) => (
-              <div
-                key={ch.id}
-                className="p-4 bg-surface border border-border rounded-xl text-right flex flex-col justify-between gap-3 shadow-xs"
+        <>
+          <div className="filter-tabs mt-4">
+            {['الكل', 'beIN Sports', 'الدوري الإسباني', 'دوري أبطال أوروبا'].map((t) => (
+              <Button
+                key={t}
+                variant={tab === t ? 'default' : 'ghost'}
+                onClick={() => setTab(t)}
+                className="text-xs"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      مباشر LAN
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">{ch.tag}</span>
-                  </div>
-                  <h4 className="font-bold text-foreground text-sm font-heading">{ch.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">{ch.category}</p>
-                  <p className="text-[10px] text-stone-400 font-mono mt-1" dir="ltr">
-                    {ch.serverUrl}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  <Button asChild size="sm" variant="gold" className="flex-1">
-                    <Link href="/live">
-                      <Play fill="currentColor" size={13} /> مشاهدة الآن
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline" className="flex-1">
-                    <a href={ch.serverUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink size={13} /> فتح السيرفر
-                    </a>
-                  </Button>
-                </div>
-              </div>
+                {t}
+              </Button>
             ))}
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="p-4 rounded-2xl bg-surface border border-line flex flex-col justify-between gap-3 shadow-xs">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <h4 className="font-bold text-sm text-ink font-heading">beIN Sports HD 1</h4>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[10px] font-bold">
+                      مباشر الآن
+                    </span>
+                  </div>
+                  <p className="text-xs text-ink-2 mt-1 font-mono text-[11px] dir-ltr text-right">
+                    http://192.168.50.2:8888/live/bein1/
+                  </p>
+                </div>
+                <Tv className="w-5 h-5 text-accent shrink-0" />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-line/60">
+                <Link href="/live" className="flex-1">
+                  <Button variant="default" className="w-full text-xs font-bold py-2 gap-1.5">
+                    <Play size={13} fill="currentColor" /> تشغيل في الموقع
+                  </Button>
+                </Link>
+                <a
+                  href={liveMatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-ink text-xs font-bold flex items-center gap-1.5 transition-colors"
+                >
+                  <ExternalLink size={13} /> السيرفر
+                </a>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-surface border border-line flex flex-col justify-between gap-3 shadow-xs">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                    <h4 className="font-bold text-sm text-ink font-heading">مشغل الشبكة الشامل (LAN Kit)</h4>
+                  </div>
+                  <p className="text-xs text-ink-2 mt-1 text-[11px]">
+                    صفحة تشغيل HTML مجهزة بجميع القنوات دون الحاجة للإنترنت
+                  </p>
+                </div>
+                <Radio className="w-5 h-5 text-amber-600 shrink-0" />
+              </div>
+
+              <div className="pt-2 border-t border-line/60">
+                <a
+                  href={NETWORK_LINKS.localServer.lanPlayerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button variant="outline" className="w-full text-xs font-bold py-2 gap-1.5">
+                    <ExternalLink size={13} /> فتح مشغل الشبكة المحلي
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {compact && (
-        <div className="match-caption">
-          <span>
-            <span className="status-dot" style={{ backgroundColor: '#10B981' }} /> سيرفر البث المحلي جاهز: 192.168.50.2:8888
+        <div className="match-caption flex items-center justify-between text-xs py-2 px-1">
+          <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
+            <span className="status-dot bg-emerald-500" /> سيرفر البث المحلي نشط: 192.168.50.2:8888
           </span>
-          <Link href="/live">
-            مشاهدة البث <ArrowLeft size={13} />
+          <Link href="/live" className="flex items-center gap-1 text-accent font-bold hover:underline">
+            مشاهدة الآن <ArrowLeft size={13} />
           </Link>
         </div>
       )}
@@ -363,45 +367,46 @@ export function LiveSection({ compact = false }: { compact?: boolean }) {
       {open && (
         <div className="modal-backdrop" onClick={() => setOpen(false)}>
           <div
-            className="modal small"
+            className="modal small max-w-sm space-y-4 p-6"
             role="dialog"
             aria-modal="true"
             aria-label="مركز البث المباشر"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 rounded-full bg-[#D4AF37]/15 text-[#C59424] flex items-center justify-center mx-auto mb-3">
-              <Tv className="w-6 h-6" />
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center">
+              <Tv size={24} />
             </div>
-            <h2>سيرفر البث المباشر للمباريات</h2>
-            <p>
-              يعمل البث المباشر محلياً وبالمجان لمشتركي شبكة طلقة نت بدون استهلاك لرصيد الباقة أو الحاجة لكروت إنترنت.
-            </p>
-
-            <div className="p-3 bg-stone-900 rounded-lg text-right text-xs my-3 border border-stone-800">
-              <span className="text-[11px] text-stone-400 block mb-1">رابط السيرفر الداخلي المباشر:</span>
-              <code className="text-[#D4AF37] font-mono text-[11px] select-all block break-all" dir="ltr">
-                {NETWORK_LINKS.localServer.liveMatchUrl}
-              </code>
+            <div className="text-center space-y-1">
+              <h2 className="text-base font-black text-ink">سيرفر البث المباشر الداخلي</h2>
+              <p className="text-xs text-ink-2 leading-relaxed">
+                البث المباشر لمباريات اليوم يعمل مباشرة عبر سيرفر الشبكة المحلي:
+              </p>
+              <div className="p-2.5 rounded-xl bg-neutral-100 font-mono text-[11px] text-ink dir-ltr text-center font-bold select-all break-all">
+                {liveMatchUrl}
+              </div>
+              <p className="text-[11px] text-emerald-700 font-medium">
+                ⚡ خدمة محلية مجانية 100% بدون خصم أي ميجابايت من باقتك.
+              </p>
             </div>
 
-            <div className="space-y-2 w-full mt-4">
-              <Button asChild className="w-full" variant="gold">
-                <Link href="/live">
-                  <Play fill="currentColor" size={14} className="ml-1" />
-                  تشغيل عبر مركز البث المباشر
-                </Link>
-              </Button>
-              <Button asChild className="w-full" variant="outline">
-                <a
-                  href={NETWORK_LINKS.localServer.liveMatchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink size={14} className="ml-1" />
-                  فتح نافذة السيرفر المباشر
-                </a>
-              </Button>
-              <Button className="w-full" variant="ghost" onClick={() => setOpen(false)}>
+            <div className="space-y-2 pt-2">
+              <Link href="/live" onClick={() => setOpen(false)} className="block w-full">
+                <Button className="w-full py-2.5 font-bold gap-2 text-xs">
+                  <Play size={14} fill="currentColor" /> المشغل المدمج في الموقع
+                </Button>
+              </Link>
+              <a
+                href={liveMatchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="block w-full"
+              >
+                <Button variant="outline" className="w-full py-2.5 font-bold gap-2 text-xs">
+                  <ExternalLink size={14} /> فتح رابط السيرفر المباشر
+                </Button>
+              </a>
+              <Button variant="ghost" className="w-full text-xs" onClick={() => setOpen(false)}>
                 إغلاق <Check size={14} />
               </Button>
             </div>

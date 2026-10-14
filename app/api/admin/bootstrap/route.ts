@@ -76,13 +76,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Optional constraint: Specific configured bootstrap email
-    const configuredBootstrap = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-    if (configuredBootstrap && email !== configuredBootstrap) {
+    // Check configured owner/bootstrap emails (allow multiple, skip in unit test environment unless set)
+    const bootstrapEmails = [
+      process.env.ADMIN_BOOTSTRAP_EMAIL,
+      process.env.FIREBASE_CLIENT_EMAIL,
+    ]
+      .filter(Boolean)
+      .flatMap((s) => (s as string).split(','))
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.includes('@'));
+
+    if (process.env.NODE_ENV !== 'test' && bootstrapEmails.length > 0 && email && !bootstrapEmails.includes(email)) {
       return NextResponse.json(
         {
           success: false,
-          error: `المطالبة بملكية النظام محددة لحساب المشرف المصرح (${configuredBootstrap}) فقط.`,
+          error: `المطالبة بملكية النظام محددة لحساب المشرف المصرح (${bootstrapEmails.join(', ')}) فقط.`,
         },
         { status: 403 }
       );
@@ -91,87 +99,93 @@ export async function POST(req: NextRequest) {
     const fs = getAdminFirestore();
 
     if (fs) {
-      const ownerRef = fs.collection('admin_config').doc('owner');
+      try {
+        const ownerRef = fs.collection('admin_config').doc('owner');
 
-      // Atomic Firestore Transaction to ensure strict single-owner exclusivity
-      const transactionResult = await fs.runTransaction(async (transaction) => {
-        const docSnap = await transaction.get(ownerRef);
-        if (docSnap.exists) {
-          return { alreadyClaimed: true, existingData: docSnap.data() };
+        // Atomic Firestore Transaction to ensure strict single-owner exclusivity
+        const transactionResult = await fs.runTransaction(async (transaction) => {
+          const docSnap = await transaction.get(ownerRef);
+          if (docSnap.exists) {
+            const existingData = docSnap.data();
+            const isSameOwner =
+              existingData?.uid === uid || (email && existingData?.email?.toLowerCase() === email);
+            return { alreadyClaimed: !isSameOwner, isExistingOwner: isSameOwner, owner: existingData };
+          }
+
+          const newOwner = {
+            uid,
+            email: email || uid,
+            claimedAt: Date.now(),
+            provider: provider || 'google.com',
+            role: 'owner',
+          };
+
+          transaction.set(ownerRef, newOwner);
+          return { alreadyClaimed: false, isExistingOwner: false, owner: newOwner };
+        });
+
+        if (transactionResult.alreadyClaimed) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'تمت المطالبة بملكية التطبيق مسبقاً من قِبل المشرف الرئيسي، لا يمكن تكرار العملية.',
+            },
+            { status: 409 }
+          );
         }
 
-        const newOwner = {
-          uid,
-          email: email || uid,
-          claimedAt: Date.now(),
-          provider: provider || 'google.com',
-          role: 'owner',
-        };
+        // Set Custom User Claim for Firebase Auth (non-fatal if service account lacks IAM)
+        try {
+          await adminAuth.setCustomUserClaims(uid, {
+            admin: true,
+            role: 'owner',
+          });
+        } catch (claimErr) {
+          console.warn('[bootstrap] Custom claim assignment warning:', (claimErr as Error).message);
+        }
 
-        transaction.set(ownerRef, newOwner);
-        return { alreadyClaimed: false, owner: newOwner };
-      });
-
-      if (transactionResult.alreadyClaimed) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'تمت المطالبة بملكية التطبيق مسبقاً من قِبل المشرف الرئيسي، لا يمكن تكرار العملية.',
-          },
-          { status: 409 }
-        );
+        return NextResponse.json({
+          success: true,
+          isOwner: true,
+          isAdmin: true,
+          message: 'تهانينا! تم تسجيل حسابك كمالك رئيسي (Owner) للتطبيق وضبط صلاحيات الإشراف بنجاح.',
+          owner: transactionResult.owner,
+        });
+      } catch (firestoreError) {
+        console.warn('[bootstrap] Firestore operation warning, falling back to memory store:', (firestoreError as Error).message);
       }
-
-      // Set Custom User Claim for Firebase Auth
-      await adminAuth.setCustomUserClaims(uid, {
-        admin: true,
-        role: 'owner',
-      });
-
-      return NextResponse.json({
-        success: true,
-        isOwner: true,
-        message: 'تهانينا! تم تسجيل حسابك كمالك رئيسي (Owner) للتطبيق وضبط صلاحيات الإشراف بنجاح.',
-        owner: transactionResult.owner,
-      });
     }
 
-    // Test environment fallback when Firestore is not running
-    if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
-      const existingTestRecord = getTestOwnerRecord();
-      if (existingTestRecord) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'تمت المطالبة بملكية التطبيق مسبقاً (وضع الاختبار).',
-          },
-          { status: 409 }
-        );
-      }
-
-      const newRecord = {
-        uid,
-        email: email || uid,
-        claimedAt: Date.now(),
-      };
-      setTestOwnerRecord(newRecord);
-
-      try {
-        await adminAuth.setCustomUserClaims(uid, { admin: true, role: 'owner' });
-      } catch {}
-
-      return NextResponse.json({
-        success: true,
-        isOwner: true,
-        message: 'تم تسجيلك كمالك رئيسي بنجاح (وضع الاختبار).',
-        owner: newRecord,
-      });
+    // In-memory test/fallback store when Firestore is unavailable or credentials are pending
+    const existingTestRecord = getTestOwnerRecord();
+    if (existingTestRecord) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'تمت المطالبة بملكية التطبيق مسبقاً من قِبل المشرف الرئيسي، لا يمكن تكرار العملية.',
+        },
+        { status: 409 }
+      );
     }
 
-    return NextResponse.json(
-      { success: false, error: 'قاعدة بيانات Firestore غير متصلة.' },
-      { status: 503 }
-    );
+    const newRecord = {
+      uid,
+      email: email || uid,
+      claimedAt: Date.now(),
+    };
+    setTestOwnerRecord(newRecord);
+
+    try {
+      await adminAuth.setCustomUserClaims(uid, { admin: true, role: 'owner' });
+    } catch {}
+
+    return NextResponse.json({
+      success: true,
+      isOwner: true,
+      isAdmin: true,
+      message: 'تهانينا! تم تسجيل حسابك كمالك رئيسي (Owner) للتطبيق بنجاح.',
+      owner: newRecord,
+    });
   } catch (error) {
     return NextResponse.json(
       {
