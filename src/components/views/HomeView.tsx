@@ -22,6 +22,7 @@ import { Card } from '@/src/components/ui/Card';
 import { Badge } from '@/src/components/ui/Badge';
 import { SignalRing } from '@/src/components/ui/SignalRing';
 import { Sheet } from '@/src/components/ui/Sheet';
+import { useIsClient } from '@/src/hooks/useIsClient';
 
 let pingListeners: Array<() => void> = [];
 
@@ -75,11 +76,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenSpeedTest,
   onOpenLoyalty,
 }) => {
-  const lastPing = React.useSyncExternalStore(
+  const isClient = useIsClient();
+  const rawLastPing = React.useSyncExternalStore(
     pingStore.subscribe,
     pingStore.getSnapshot,
     pingStore.getServerSnapshot
   );
+  const lastPing = isClient ? rawLastPing : null;
   const [isTesting, setIsTesting] = useState(false);
   const [showNetworkInfoSheet, setShowNetworkInfoSheet] = useState(false);
 

@@ -1,13 +1,17 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 
-const emptySubscribe = () => () => {};
-
+/**
+ * Returns false on the server and during initial client hydration pass.
+ * Sets to true immediately after mount, preventing SSR hydration mismatches.
+ */
 export function useIsClient(): boolean {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return isClient;
 }

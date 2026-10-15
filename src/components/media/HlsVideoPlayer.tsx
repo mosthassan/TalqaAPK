@@ -64,11 +64,13 @@ export default function HlsVideoPlayer({
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isPipSupported = useSyncExternalStore(
-    () => () => {},
-    () => (typeof document !== 'undefined' ? Boolean(document.pictureInPictureEnabled) : false),
-    () => false
-  );
+  const [isPipSupported, setIsPipSupported] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined' && Boolean(document.pictureInPictureEnabled)) {
+      setIsPipSupported(true);
+    }
+  }, []);
   const [isBuffering, setIsBuffering] = useState(true);
   const [errorState, setErrorState] = useState<string | null>(null);
   const [qualities, setQualities] = useState<{ id: number; height: number; bitrate: number }[]>([]);

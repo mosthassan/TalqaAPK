@@ -98,15 +98,19 @@ export function LoyaltyContestView() {
   const [serverError, setServerError] = useState<string | null>(null);
 
   // My Won Wallet
-  const [wallet, setWallet] = useState<WonVoucherItem[]>(() => {
-    if (typeof window === 'undefined') return [];
+  const [wallet, setWallet] = useState<WonVoucherItem[]>([]);
+
+  useEffect(() => {
     try {
       const raw = localStorage.getItem(WALLET_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      if (raw) {
+        setWallet(JSON.parse(raw));
+      }
     } catch {
-      return [];
+      // ignore
     }
-  });
+  }, []);
+
   const [showWallet, setShowWallet] = useState(false);
   const [showRulesSheet, setShowRulesSheet] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);

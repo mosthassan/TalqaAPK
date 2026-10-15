@@ -2,17 +2,12 @@
 
 import React from 'react';
 import { useOnlineStatus } from '@/src/hooks/useOnlineStatus';
+import { useIsClient } from '@/src/hooks/useIsClient';
 import { WifiOff } from 'lucide-react';
 
-const emptySubscribe = () => () => {};
-
 export const OfflineIndicator: React.FC = () => {
+  const isClient = useIsClient();
   const isOnline = useOnlineStatus();
-  const isClient = React.useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
 
   if (!isClient || isOnline) return null;
 
