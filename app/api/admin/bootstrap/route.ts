@@ -6,8 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminFirestore } from '@/src/lib/server/firebaseAdmin';
-import { getTestOwnerRecord, setTestOwnerRecord, resetTestOwnerRecordForTesting } from '@/src/lib/server/bootstrapStore';
-export { resetTestOwnerRecordForTesting };
+import { getTestOwnerRecord, setTestOwnerRecord } from '@/src/lib/server/bootstrapStore';
 
 export const dynamic = 'force-dynamic';
 

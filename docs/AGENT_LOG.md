@@ -213,3 +213,15 @@
   3. **سلامة البناء والاختبارات:**
      - تشغيل جميع اختبارات Vitest الـ 40 واجتيازها بنجاح 100% (بما فيها اختبارات المحفظة الذرية وفهرس التفرد ومكافحة التكرار).
      - استقرار سيرفر التطوير Next.js واستجابته السليمة على المنفذ 3000.
+
+---
+
+## [2026-10-15 14:40] إصلاح خطأ البناء في Vercel (Next.js Route Handler Export)
+
+- **المشكلة:** فشل البناء على منصة Vercel أثناء التحقق من الأنواع (`Type error`) بالرسالة:
+  `Route "app/api/admin/bootstrap/route.ts" does not match the required types. "resetTestOwnerRecordForTesting" is not a valid Route export field.`
+- **السبب:** يقوم Next.js 15 بحظر تصدير أي دوال أو متغيرات من ملفات `route.ts` خارج دوال طلبات الـ HTTP المعتمدة (`GET`, `POST`, إلخ) وإعدادات الـ Segment (`dynamic`).
+- **الحل:**
+  1. إزالة التصدير غير المسموح به `export { resetTestOwnerRecordForTesting }` من `app/api/admin/bootstrap/route.ts` (حيث يتم استيراد الدالة في الاختبارات مباشرة من `src/lib/server/bootstrapStore`).
+  2. تشغيل فحص الأنواع الصارم `npm run typecheck` (`tsc --noEmit`) واجتيازه بدون أي أخطاء (Zero errors).
+  3. اجتياز جميع اختبارات Vitest الـ 40 بنجاح.
